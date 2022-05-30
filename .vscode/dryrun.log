@@ -1,0 +1,5 @@
+make --dry-run --keep-going --print-directory
+make: Entering directory '/home/mozixreality/110CP2_FinalProject'
+echo "make judge: run map judge"
+make: Leaving directory '/home/mozixreality/110CP2_FinalProject'
+ 

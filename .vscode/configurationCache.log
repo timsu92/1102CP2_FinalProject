@@ -1,0 +1,1 @@
+{"buildTargets":["build","clean","deploy","help","install","judge","lint","login","push","test","tool"],"launchTargets":[],"customConfigurationProvider":{"workspaceBrowse":{"browsePath":[],"compilerArgs":[]},"fileIndex":[]}}

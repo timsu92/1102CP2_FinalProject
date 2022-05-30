@@ -21,22 +21,21 @@ bool valid(int x, int y){
 }
 
 string next_dir(int x, int y, int num){
-    enum Dir {UP, DOWN, LEFT, RIGHT};
-    while(num){
+    for(int i=0;i<4;i++){
         switch(num%4) {
-            case UP: 
+            case 0: 
                 if(valid(x-1, y))
                     return "UP";
                 else break;
-            case DOWN:
+            case 1:
                 if(valid(x+1, y)) 
                     return "DOWN";
                 else break;
-            case LEFT: 
+            case 2: 
                 if(valid(x, y-1))
                     return "LEFT";
                 else break;
-            case RIGHT: 
+            case 3: 
                 if(valid(x, y+1))
                     return "RIGHT";
                 else break;
@@ -59,7 +58,8 @@ int main(void){
     for(int i=0;i<M;i++)
         for(int j=0;j<N;j++)
             if(Graph[i][j] == me){
-                x = i, y = j;
+                x = i;
+                y = j;
                 rand_seed = i + j;
             }
     srand(rand_seed);
