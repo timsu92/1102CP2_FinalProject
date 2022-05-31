@@ -8,7 +8,7 @@ make: *** No rule to make target 'all'.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Mon May 30 14:00:53 2022
+# Make data base, printed on Tue May 31 22:56:41 2022
 
 # Variables
 
@@ -57,7 +57,7 @@ LESSOPEN = | /usr/bin/lesspipe %s
 # environment
 VSCODE_CWD = /home/mozixreality
 # environment
-SSH_CONNECTION = 140.119.162.46 52771 192.168.50.242 55688
+SSH_CONNECTION = 140.119.162.46 55622 192.168.50.242 55688
 # environment
 PATH = /home/mozixreality/.vscode-server/bin/da15b6fd3ef856477bf6f4fb29ba1b7af717770d/bin/remote-cli:/home/mozixreality/.local/bin:/home/mozixreality/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/usr/local/cuda-11.0/bin/
 # environment
@@ -65,7 +65,7 @@ XDG_RUNTIME_DIR = /run/user/1004
 # environment
 VSCODE_LOG_STACK = false
 # environment
-VSCODE_IPC_HOOK_CLI = /run/user/1004/vscode-ipc-109923e9-f107-4fab-9348-8e8bd9f31003.sock
+VSCODE_IPC_HOOK_CLI = /run/user/1004/vscode-ipc-f9ee77d8-1511-4c3a-a42d-8d5e91cedf3f.sock
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver output-sync check-symlink load
 # environment
@@ -91,7 +91,7 @@ LESSCLOSE = /usr/bin/lesspipe %s %s
 # environment
 LOGNAME = mozixreality
 # environment
-APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = 1
+APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = true
 # automatic
 +F = $(notdir $+)
 # environment
@@ -105,11 +105,12 @@ MAKE = $(MAKE_COMMAND)
 # default
 MAKECMDGOALS := all
 # environment
+ 
 SHLVL = 1
 # makefile (from 'Makefile', line 9)
 BUILD_TAG = latest
 # environment
-XDG_SESSION_ID = 6118
+XDG_SESSION_ID = 6594
 # environment
 USER = mozixreality
 # makefile
@@ -127,7 +128,7 @@ MAKEFLAGS = pqrR
 # environment
 MFLAGS = -pqrR
 # environment
-SSH_CLIENT = 140.119.162.46 52771 55688
+SSH_CLIENT = 140.119.162.46 55622 55688
 # automatic
 +D = $(patsubst %/,%,$(dir $+))
 # environment
@@ -157,7 +158,6 @@ LANG = C
 # makefile (from 'Makefile', line 7)
 REGISTRY = 220.135.77.53:8081
 # environment
- 
 VSCODE_EXTHOST_WILL_SEND_SOCKET = true
 # environment
 MOTD_SHOWN = pam
@@ -170,9 +170,9 @@ MOTD_SHOWN = pam
 
 # Directories
 
-# . (device 1811, inode 5767169): 11 files, no impossibilities.
+# . (device 1811, inode 5767169): 13 files, no impossibilities.
 
-# 11 files, no impossibilities in 1 directories.
+# 13 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
@@ -180,6 +180,7 @@ MOTD_SHOWN = pam
 
 # Files
 
+ 
 # Not a target:
 all:
 #  Command line target.
@@ -195,7 +196,7 @@ all:
 # Not a target:
 Makefile:
 #  Implicit rule search has been done.
-#  Last modified 2022-05-30 14:00:36.061768454
+#  Last modified 2022-05-31 22:35:33.609659679
 #  File has been updated.
 #  Successfully updated.
 
@@ -206,29 +207,45 @@ help:
 #  File has not been updated.
 #  recipe to execute (from 'Makefile', line 12):
 	@echo "make judge: run map judge"
+	@echo "make clean: clean generate files"
 
 .DEFAULT: help
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
 
+clean:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (from 'Makefile', line 16):
+	@rm -rf tmp
+	@rm -rf *.log
+
 judge:
 #  Phony target (prerequisite of .PHONY).
 #  Implicit rule search has not been done.
- 
 #  File does not exist.
 #  File has not been updated.
-#  recipe to execute (from 'Makefile', line 15):
-	mkdir tmp
-	cp judge/judge.py tmp
-	cp A/A.cpp tmp
-	cp B/B.cpp tmp
-	cp map/88map tmp
-	g++ tmp/A.cpp -o tmp/A
-	g++ tmp/B.cpp -o tmp/B
-	cd tmp && python3 judge.py
-	cp tmp/move.log .
-	rm -rf tmp
+#  recipe to execute (from 'Makefile', line 20):
+	@mkdir tmp
+	@cp judge/judge.py tmp
+	@cp player/player_1.cpp tmp/A.cpp
+	@cp player/player_2.cpp tmp/B.cpp
+	@cp map/88map tmp
+	@g++ tmp/A.cpp -o tmp/A
+	@g++ tmp/B.cpp -o tmp/B
+	@echo "player 1 be A (first), player 2 be B (second)"
+ 
+	@cd tmp && python3 judge.py
+	@echo "output move_1.log"
+	@cp tmp/move.log move_1.log
+	@cd tmp && mv A tmp && mv B A && mv tmp B
+	@echo "player 2 be A (first), player 1 be B (second)"
+	@cd tmp && python3 judge.py
+	@echo "output move_2.log"
+	@cp tmp/move.log move_2.log
+	@rm -rf tmp
 
 install:
 #  Phony target (prerequisite of .PHONY).
@@ -237,20 +254,19 @@ install:
 #  File has not been updated.
 
 # files hash-table stats:
-# Load=8/1024=1%, Rehash=0, Collisions=0/25=0%
+# Load=9/1024=1%, Rehash=0, Collisions=0/26=0%
 # VPATH Search Paths
 
 # No 'vpath' search paths.
 
 # No general ('VPATH' variable) search path.
 
-# strcache buffers: 1 (0) / strings = 19 / storage = 132 B / avg = 6 B
-# current buf: size = 8162 B / used = 132 B / count = 19 / avg = 6 B
+# strcache buffers: 1 (0) / strings = 22 / storage = 175 B / avg = 7 B
+# current buf: size = 8162 B / used = 175 B / count = 22 / avg = 7 B
 
-# strcache performance: lookups = 32 / hit rate = 40%
+# strcache performance: lookups = 36 / hit rate = 38%
 # hash-table stats:
- 
-# Load=19/8192=0%, Rehash=0, Collisions=1/32=3%
-# Finished Make data base on Mon May 30 14:00:53 2022
+# Load=22/8192=0%, Rehash=0, Collisions=1/36=3%
+# Finished Make data base on Tue May 31 22:56:41 2022
 
  
