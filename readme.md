@@ -2,7 +2,7 @@
 ## Quick Start
 1. 請將你的程式碼放置於 player 資料夾中，並請命名為 player.cpp，請確保你的 player 資料中必須包含這隻檔案。
 2. sample input 可以採用 sample 資料夾中的範例輸入
-3. 欲使用 judge，可以於終端環境中輸入 make judge 即可。判斷完畢後將於目錄底下出現 move_1.log 和 move_2.log。player 將扮演 A 而 bot 將扮演 B，內容分別為 A 先手 B 後手及 B 先手 A 後手的移動紀錄，以及最後兩行輸出競賽結果
+3. 欲使用 judge，可以於終端環境中輸入 make judge 即可。judge 先執行玩家當 A 做先手玩家，再執行玩家當 B 做後手玩家。判斷完畢後將於目錄底下出現 move_player_be_A.log 和 move_player_be_B.log。log 中為 A、B 玩家的移動紀錄，以及最後兩行輸出競賽結果
 4. judge 僅能在 linux 平台使用，包含 ubuntu, mac 等機器，並請確保您的環境安裝有 python3 。如遇到 judge 無法使用，請先嘗試使用 make clean ，若仍然無法使用再與助教聯繫。
 
 ## Game Introduction
