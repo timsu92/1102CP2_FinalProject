@@ -196,7 +196,6 @@ def playerB(turn, Bx, By):
 if __name__ == '__main__':
     print("judging ...")
     # A first B second
-    print("Player first Bot second")
     init()
     for i in range(1, 1001):
         Ax, Ay, Bx, By = 0, 0, 0, 0
@@ -235,49 +234,4 @@ if __name__ == '__main__':
         f.write("B Score: " + str(Bscore) + "\n")
         f.write(msg)  
 
-    subprocess.run("mv move.log move_1.log", shell=True, timeout=1)
-    print("output move_1.log")
-
-    # B first A second 
-    print("Bot first Player second")
-    init()
-    for i in range(1, 1001):
-        Ax, Ay, Bx, By = 0, 0, 0, 0
-        cnt = 0
-        for idx, ls in enumerate(graph):
-            for idy, elm in enumerate(ls):
-                if elm == "A":
-                    Ax, Ay = idx, idy
-                if elm == "B":
-                    Bx, By = idx, idy
-                if elm == "b" or elm == "m" or elm == "n" or elm == "s" or elm == "t":
-                    cnt += 1
-        if cnt == 0:
-            msg = GAME_CLEAR
-            break;           
-
-        playerB(i, Bx, By)
-        if msg != "":
-            break
-
-        playerA(i, Ax, Ay)
-        if msg != "":
-            break
-
-    if Ascore > Bscore:
-        with open('move.log', 'a') as f:
-            f.write("A Win\n")
-    elif Ascore < Bscore:
-        with open('move.log', 'a') as f:
-            f.write("B Win\n")
-    else:
-        with open('move.log', 'a') as f:
-            f.write("Tie\n")
-    with open('move.log', 'a') as f:
-        f.write("A Score: " + str(Ascore) + "\n")
-        f.write("B Score: " + str(Bscore) + "\n")
-        f.write(msg)
-    
-    subprocess.run("mv move.log move_2.log", shell=True, timeout=1)
-    print("output move_2.log")
     print("judge finished")
