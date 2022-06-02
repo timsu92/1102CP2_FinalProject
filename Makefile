@@ -21,6 +21,7 @@ judge:
 	@g++ tmp/B.cpp -o tmp/B
 	@cd tmp && python3 judge.py
 	@cp tmp/move.log move_player_be_A.log
+	@rm tmp/*.log
 	@echo "bot be A, player be B"
 	@cp player/player.cpp tmp/B.cpp
 	@cp bot/bot.cpp tmp/A.cpp
