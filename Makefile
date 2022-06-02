@@ -19,8 +19,8 @@ clean:
 judge:
 	@mkdir tmp
 	@cp judge/judge.py tmp
-	@cp player/A.cpp tmp/A.cpp
-	@cp player/B.cpp tmp/B.cpp
+	@cp player/player.cpp tmp/A.cpp
+	@cp bot/bot.cpp tmp/B.cpp
 	@cp map/88map tmp
 	@g++ tmp/A.cpp -o tmp/A
 	@g++ tmp/B.cpp -o tmp/B

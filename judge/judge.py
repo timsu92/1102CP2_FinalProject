@@ -196,7 +196,7 @@ def playerB(turn, Bx, By):
 if __name__ == '__main__':
     print("judging ...")
     # A first B second
-    print("A first B second")
+    print("Player first Bot second")
     init()
     for i in range(1, 1001):
         Ax, Ay, Bx, By = 0, 0, 0, 0
@@ -239,7 +239,7 @@ if __name__ == '__main__':
     print("output move_1.log")
 
     # B first A second 
-    print("B first A second")
+    print("Bot first Player second")
     init()
     for i in range(1, 1001):
         Ax, Ay, Bx, By = 0, 0, 0, 0
