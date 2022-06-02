@@ -34,7 +34,6 @@ def pick_item(who, x, y):
     global Ascore, Bscore, ACountDown, BCountDown
     if who == "A":
         if graph[x][y] == "b":
-            print("????")
             ACountDown = 3
         elif graph[x][y] == "m":
             Ascore += 1
@@ -180,7 +179,7 @@ def playerB(turn, Bx, By):
                 return
         elif Bdir == "RIGHT":
             if valid(Bx, By+1):
-                graph[Bx][Ay] = "."
+                graph[Bx][By] = "."
                 pick_item("B", Bx, By+1)
             else:
                 Bscore = -100
