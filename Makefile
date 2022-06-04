@@ -1,14 +1,26 @@
 SHELL := /bin/bash # Use bash syntax
-.PHONY: install judge help
+.PHONY: clean test judge help
 .DEFAULT: help
 
 help:
 	@echo "make judge: judge with bot 1"
+	@echo "make test: test player with sample input"
 	@echo "make clean: clean generate files"
 
 clean:
 	@rm -rf tmp
 	@rm -rf *.log
+
+test:
+	@mkdir tmp
+	@cp player/player.cpp tmp/player.cpp
+	@g++ tmp/player.cpp -o tmp/player
+	@echo "test player with sampleA.in"
+	@timeout 1 tmp/player < sample/sampleA.in
+	@echo "test player with sampleB.in"
+	@timeout 1 tmp/player < sample/sampleB.in
+	@echo "test pass"
+	@rm -rf tmp
 
 judge:
 	@mkdir tmp
@@ -19,7 +31,7 @@ judge:
 	@cp bot/bot.cpp tmp/B.cpp
 	@g++ tmp/A.cpp -o tmp/A
 	@g++ tmp/B.cpp -o tmp/B
-	@cd tmp && python3 judge.py
+	@cd tmp && python judge.py
 	@cp tmp/move.log move_player_be_A.log
 	@rm tmp/*.log
 	@echo "bot be A, player be B"
@@ -27,7 +39,7 @@ judge:
 	@cp bot/bot.cpp tmp/A.cpp
 	@g++ tmp/A.cpp -o tmp/A
 	@g++ tmp/B.cpp -o tmp/B
-	@cd tmp && python3 judge.py
+	@cd tmp && python judge.py
 	@cp tmp/move.log move_player_be_B.log
 	@rm -rf tmp
 

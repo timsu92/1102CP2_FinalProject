@@ -78,7 +78,7 @@ def playerA(turn, Ax, Ay):
             f.write(str(Ascore) + "\n" + str(Bscore) + "\n" + "A\n")
 
         try:
-            subprocess.run("./A < A.in > A.out", shell=True, timeout=1)
+            subprocess.check_call(["timeout 1 ./A < A.in > A.out"], shell=True)
         except:
             Ascore = -100
             msg = TIME_OUT
@@ -141,7 +141,7 @@ def playerB(turn, Bx, By):
             f.write(str(Ascore) + "\n" + str(Bscore) + "\n" + "B\n")
 
         try:
-            subprocess.run("./B < B.in > B.out", shell=True, timeout=1)
+            subprocess.check_call(["timeout 1 ./B < B.in > B.out"], shell=True)
         except:
             Bscore = -100
             msg = TIME_OUT
