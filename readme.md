@@ -1,4 +1,5 @@
-# 1102 CP2 Final Project Judger
+# 1102 CP2 Final Project
+
 ## Quick Start
 1. 請將你的程式碼放置於 player 資料夾中，並請命名為 player.cpp，請確保你的 player 資料中必須包含這隻檔案。
 2. sample input 可以採用 sample 資料夾中的範例輸入
