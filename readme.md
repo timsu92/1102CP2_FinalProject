@@ -131,6 +131,7 @@ RIGHT
 |-----|-----|
 |June 2|期末專題公布（含第一號機器人）|
 |June 9|第二號機器人釋出（請 pull 本 git repository 取得）|
+|June 15/16| 線上約談 |
 |June 16|第三號機器人釋出（請 pull 本 git repository 取得）|
 |June 23 23:59:59| 程式、報告上傳截止|
 |June 30| 對戰結果公布 |
