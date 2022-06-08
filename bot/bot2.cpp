@@ -1,6 +1,5 @@
 #include <iostream>
 #include <cstdlib>
-#include <ctime>
 using namespace std;
 
 void process(int round, int n_row, int n_col, int score_A, int score_B, char role, char** table);
@@ -36,7 +35,7 @@ int main(){
 
 void process(int round, int n_row, int n_col, int score_A, int score_B, char role, char** table){
     if(role == 'A'){
-        srand(time(NULL));
+        srand(11916);
 
         int ax, ay;
 
