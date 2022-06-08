@@ -1,4 +1,5 @@
-# 1102 CP2 Final Project Judger
+# 1102 CP2 Final Project
+
 ## Quick Start
 1. 請將你的程式碼放置於 player 資料夾中，並請命名為 player.cpp，請確保你的 player 資料中必須包含這隻檔案。
 2. sample input 可以採用 sample 資料夾中的範例輸入
@@ -41,7 +42,7 @@
 ## Input Format
 - 輸入說明: 
     - 輸入第一行為一整數 T，表示現在為第 T 回合，並保證 0 < T < 1001。
-    - 輸入第二行為兩個整數 M, N，代表這張地圖的大小 M * N。
+    - 輸入第二行為兩個整數 $ 0 < M, N \le 20$，代表這張地圖的大小 M * N。
     - 接著 M 行，每行將告訴你地圖上的所有物件，物件與物件之間以空白隔開，物件種類如下：
         1. 'A' 表示 A 玩家目前所在的位置
         2. 'B' 表示 B 玩家目前所在的位置
@@ -132,6 +133,7 @@ RIGHT
 |-----|-----|
 |June 2|期末專題公布（含第一號機器人）|
 |June 9|第二號機器人釋出（請 pull 本 git repository 取得）|
+|June 15/16| 線上約談 |
 |June 16|第三號機器人釋出（請 pull 本 git repository 取得）|
 |June 23 23:59:59| 程式、報告上傳截止|
 |June 30| 對戰結果公布 |
