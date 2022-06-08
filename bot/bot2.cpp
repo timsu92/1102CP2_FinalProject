@@ -113,11 +113,11 @@ void process(int round, int n_row, int n_col, int score_A, int score_B, char rol
             }
         }
         else{
-            if(bx * (-1) + n_col -1 == ax + 1){
-                cout << "LEFT" << endl;
+            if(bx * (-1) + n_col - 1 == ax + 1){
+                cout << "RIGHT" << endl;
             }
             else{
-                cout << "RIGHT" << endl;
+                cout << "LEFT" << endl;
             }
         }
     }
