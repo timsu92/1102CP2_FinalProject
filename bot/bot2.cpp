@@ -58,28 +58,28 @@ void process(int round, int n_row, int n_col, int score_A, int score_B, char rol
             if(r < 3){
                 turn = 0;
 
-                if((ay != 0) && (table[ay - 1][ax] != 'x')){
+                if((ay != 0) && (table[ay - 1][ax] != 'x') && (table[ay - 1][ax] != 'B')){
                     break;
                 }
             }
             else if(r < 5){
                 turn = 1;
 
-                if((ay != n_row - 1) && (table[ay + 1][ax] != 'x')){
+                if((ay != n_row - 1) && (table[ay + 1][ax] != 'x') && (table[ay + 1][ax] != 'B')){
                     break;
                 }
             }
             else if(r < 8){
                 turn = 2;
 
-                if((ax != 0) && (table[ay][ax - 1] != 'x')){
+                if((ax != 0) && (table[ay][ax - 1] != 'x') && (table[ay][ax - 1] != 'B')){
                     break;
                 }
             }
             else{
                 turn = 3;
 
-                if((ax != n_col - 1) && (table[ay][ax + 1] != 'x')){
+                if((ax != n_col - 1) && (table[ay][ax + 1] != 'x') && (table[ay][ax + 1] != 'B')){
                     break;
                 }
             }
@@ -145,28 +145,28 @@ void process(int round, int n_row, int n_col, int score_A, int score_B, char rol
                 if(r < 3){
                     turn = 0;
 
-                    if((ay != 0) && (table[ay - 1][ax] != 'x')){
+                    if((ay != 0) && (table[ay - 1][ax] != 'x') && (table[ay - 1][ax] != 'A')){
                         break;
                     }
                 }
                 else if(r < 5){
                     turn = 1;
 
-                    if((ay != n_row - 1) && (table[ay + 1][ax] != 'x')){
+                    if((ay != n_row - 1) && (table[ay + 1][ax] != 'x') && (table[ay + 1][ax] != 'A')){
                         break;
                     }
                 }
                 else if(r < 8){
                     turn = 2;
 
-                    if((ax != 0) && (table[ay][ax - 1] != 'x')){
+                    if((ax != 0) && (table[ay][ax - 1] != 'x') && (table[ay][ax - 1] != 'A')){
                         break;
                     }
                 }
                 else{
                     turn = 3;
 
-                    if((ax != n_col - 1) && (table[ay][ax + 1] != 'x')){
+                    if((ax != n_col - 1) && (table[ay][ax + 1] != 'x') && (table[ay][ax + 1] != 'A')){
                         break;
                     }
                 }
