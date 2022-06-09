@@ -34,7 +34,7 @@ int main(){
 }
 
 void process(int round, int n_row, int n_col, int score_A, int score_B, char role, char** table){
-    if((role == 'A') || (round >= 514)){
+    if(role == 'A'){
         srand(11916 + round);
 
         int ax, ay;
@@ -54,7 +54,7 @@ void process(int round, int n_row, int n_col, int score_A, int score_B, char rol
 
         while(1){
             int r = rand() % 10;
-            
+
             if(r < 3){
                 turn = 0;
 
@@ -88,36 +88,91 @@ void process(int round, int n_row, int n_col, int score_A, int score_B, char rol
         cout << str[turn] << endl;
     }
     else{
-        int ax, ay, bx, by;
+        if(round < 514){
+            int ax, ay, bx, by;
 
-        for(int i = 0 ; i < n_row ; i++){
-            for(int j = 0 ; j < n_col ; j++){
-                if(table[i][j] == 'A'){
-                    ay = i;
-                    ax = j;
-                }
-                else if(table[i][j] == 'B'){
-                    by = i;
-                    bx = j;
+            for(int i = 0 ; i < n_row ; i++){
+                for(int j = 0 ; j < n_col ; j++){
+                    if(table[i][j] == 'A'){
+                        ay = i;
+                        ax = j;
+                    }
+                    else if(table[i][j] == 'B'){
+                        by = i;
+                        bx = j;
+                    }
                 }
             }
-        }
 
-        if(bx * (-1) + n_col - 1 == ax){
-            if(by * (-1) + n_row - 1 == ay + 1){
-                cout << "DOWN" << endl;
+            if(bx * (-1) + n_col - 1 == ax){
+                if(by * (-1) + n_row - 1 == ay + 1){
+                    cout << "DOWN" << endl;
+                }
+                else{
+                    cout << "UP" << endl;
+                }
             }
             else{
-                cout << "UP" << endl;
+                if(bx * (-1) + n_col - 1 == ax + 1){
+                    cout << "RIGHT" << endl;
+                }
+                else{
+                    cout << "LEFT" << endl;
+                }
             }
         }
         else{
-            if(bx * (-1) + n_col - 1 == ax + 1){
-                cout << "RIGHT" << endl;
+            srand(11916 + round);
+
+            int bx, by;
+
+            for(int i = 0 ; i < n_row ; i++){
+                for(int j = 0 ; j < n_col ; j++){
+                    if(table[i][j] == 'B'){
+                        by = i;
+                        bx = j;
+                    }
+                }
             }
-            else{
-                cout << "LEFT" << endl;
+
+            string str[4] = {"UP", "DOWN", "LEFT", "RIGHT"};
+
+            int turn;
+
+            while(1){
+                int r = rand() % 10;
+
+                if(r < 3){
+                    turn = 0;
+
+                    if((by != 0) && (table[by - 1][bx] != 'x')){
+                        break;
+                    }
+                }
+                else if(r < 5){
+                    turn = 1;
+
+                    if((by != n_row - 1) && (table[by + 1][bx] != 'x')){
+                        break;
+                    }
+                }
+                else if(r < 8){
+                    turn = 2;
+
+                    if((bx != 0) && (table[by][bx - 1] != 'x')){
+                        break;
+                    }
+                }
+                else{
+                    turn = 3;
+
+                    if((bx != n_col - 1) && (table[by][bx + 1] != 'x')){
+                        break;
+                    }
+                }
             }
+
+            cout << str[turn] << endl;
         }
     }
 }
