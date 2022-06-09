@@ -222,15 +222,20 @@ if __name__ == '__main__':
     if Ascore > Bscore:
         with open('move.log', 'a') as f:
             f.write("A Win\n")
+            print("A Win")
     elif Ascore < Bscore:
         with open('move.log', 'a') as f:
             f.write("B Win\n")
+            print("B Win")
     else:
         with open('move.log', 'a') as f:
             f.write("Tie\n")
     with open('move.log', 'a') as f:
+        print(output_graph())
         f.write("A Score: " + str(Ascore) + "\n")
+        print("A Score: " + str(Ascore))
         f.write("B Score: " + str(Bscore) + "\n")
+        print("B Score: " + str(Bscore))
         f.write(msg)  
 
     print("judge finished")

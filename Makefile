@@ -64,3 +64,24 @@ judge2:
 	@cd tmp && python judge.py
 	@cp tmp/move.log move_player_be_B.log
 	@rm -rf tmp
+
+judge3:
+	@mkdir tmp
+	@cp judge/judge.py tmp
+	@cp map/88map tmp
+	@echo "player be A, bot be B"
+	@cp player/player.cpp tmp/A.cpp
+	@cp bot/bot3.cpp tmp/B.cpp
+	@g++ tmp/A.cpp -o tmp/A
+	@g++ tmp/B.cpp -o tmp/B
+	@cd tmp && python judge.py
+	@cp tmp/move.log move_player_be_A.log
+	@rm tmp/*.log
+	@echo "bot be A, player be B"
+	@cp player/player.cpp tmp/B.cpp
+	@cp bot/bot3.cpp tmp/A.cpp
+	@g++ tmp/A.cpp -o tmp/A
+	@g++ tmp/B.cpp -o tmp/B
+	@cd tmp && python judge.py
+	@cp tmp/move.log move_player_be_B.log
+	@rm -rf tmp
