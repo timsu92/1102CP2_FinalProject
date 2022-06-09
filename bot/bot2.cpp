@@ -124,13 +124,13 @@ void process(int round, int n_row, int n_col, int score_A, int score_B, char rol
         else{
             srand(11916 + round);
 
-            int bx, by;
+            int ax, ay;
 
             for(int i = 0 ; i < n_row ; i++){
                 for(int j = 0 ; j < n_col ; j++){
                     if(table[i][j] == 'B'){
-                        by = i;
-                        bx = j;
+                        ay = i;
+                        ax = j;
                     }
                 }
             }
@@ -145,28 +145,28 @@ void process(int round, int n_row, int n_col, int score_A, int score_B, char rol
                 if(r < 3){
                     turn = 0;
 
-                    if((by != 0) && (table[by - 1][bx] != 'x')){
+                    if((ay != 0) && (table[ay - 1][ax] != 'x')){
                         break;
                     }
                 }
                 else if(r < 5){
                     turn = 1;
 
-                    if((by != n_row - 1) && (table[by + 1][bx] != 'x')){
+                    if((ay != n_row - 1) && (table[ay + 1][ax] != 'x')){
                         break;
                     }
                 }
                 else if(r < 8){
                     turn = 2;
 
-                    if((bx != 0) && (table[by][bx - 1] != 'x')){
+                    if((ax != 0) && (table[ay][ax - 1] != 'x')){
                         break;
                     }
                 }
                 else{
                     turn = 3;
 
-                    if((bx != n_col - 1) && (table[by][bx + 1] != 'x')){
+                    if((ax != n_col - 1) && (table[ay][ax + 1] != 'x')){
                         break;
                     }
                 }
