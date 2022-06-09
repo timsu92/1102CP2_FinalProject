@@ -231,7 +231,7 @@ if __name__ == '__main__':
         with open('move.log', 'a') as f:
             f.write("Tie\n")
     with open('move.log', 'a') as f:
-        print(output_graph())
+        print(output_graph()[3:])
         f.write("A Score: " + str(Ascore) + "\n")
         print("A Score: " + str(Ascore))
         f.write("B Score: " + str(Bscore) + "\n")
