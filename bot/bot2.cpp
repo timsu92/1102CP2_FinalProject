@@ -34,8 +34,8 @@ int main(){
 }
 
 void process(int round, int n_row, int n_col, int score_A, int score_B, char role, char** table){
-    if(role == 'A'){
-        srand(11916);
+    if((role == 'A') || (round >= 514)){
+        srand(11916 + round);
 
         int ax, ay;
 
