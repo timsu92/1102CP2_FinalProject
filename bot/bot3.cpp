@@ -214,6 +214,7 @@ string BOT::makeDecision() {
             }
             visited[tmp.position.second][tmp.position.first] = true;
             q.pop();
+            refrenceOrder.clear();
         }
         q = tmpq;
     }
