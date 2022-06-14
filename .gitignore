@@ -1,3 +1,2 @@
 .vscode
-move_player_be_A.log
-move_player_be_B.log
+*.log

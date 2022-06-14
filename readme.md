@@ -1,9 +1,11 @@
-# 1102 CP2 Final Project Judger
+# 1102 CP2 Final Project
+
 ## Quick Start
 1. 請將你的程式碼放置於 player 資料夾中，並請命名為 player.cpp，請確保你的 player 資料中必須包含這隻檔案。
 2. sample input 可以採用 sample 資料夾中的範例輸入
-3. 欲使用 judge，可以於終端環境中輸入 make judge 即可。judge 先執行玩家當 A 做先手玩家，再執行玩家當 B 做後手玩家。判斷完畢後將於目錄底下出現 move_player_be_A.log 和 move_player_be_B.log。log 中為 A、B 玩家的移動紀錄，以及最後兩行輸出競賽結果
+3. 欲使用 judge，可以於終端環境中輸入 make judge1 即可。judge 先執行玩家當 A 做先手玩家，再執行玩家當 B 做後手玩家。判斷完畢後將於目錄底下出現 move_player_be_A.log 和 move_player_be_B.log。log 中為 A、B 玩家的移動紀錄，以及最後兩行輸出競賽結果
 4. judge 僅能在 linux 平台使用，包含 ubuntu, mac 等機器，並請確保您的環境安裝有 python3 。如遇到 judge 無法使用，請先嘗試使用 make clean ，若仍然無法使用再與助教聯繫。
+5. judge 各機器人請分別使用 make judge1, make judge2 ... 等指令
 
 ## Game Introduction
 > 有一個特別尋寶遊戲，在這個遊戲中只會有兩尋寶人，他們會在一張 $M \times N$ 完全對稱的地圖上，各自由左上角及右下角出發，大戰 1000 個回合後，看誰能蒐集到最多的寶物。在這個遊戲中，你將扮演兩尋寶人的其中一人，善用 CP2 所學習到技巧，盡量蒐集越多的寶物。
@@ -40,7 +42,7 @@
 ## Input Format
 - 輸入說明: 
     - 輸入第一行為一整數 T，表示現在為第 T 回合，並保證 0 < T < 1001。
-    - 輸入第二行為兩個整數 M, N，代表這張地圖的大小 M * N。
+    - 輸入第二行為兩個整數 $ 0 < M, N \le 20$，代表這張地圖的大小 M * N。
     - 接著 M 行，每行將告訴你地圖上的所有物件，物件與物件之間以空白隔開，物件種類如下：
         1. 'A' 表示 A 玩家目前所在的位置
         2. 'B' 表示 B 玩家目前所在的位置
@@ -131,6 +133,7 @@ RIGHT
 |-----|-----|
 |June 2|期末專題公布（含第一號機器人）|
 |June 9|第二號機器人釋出（請 pull 本 git repository 取得）|
+|June 15/16| 線上約談 |
 |June 16|第三號機器人釋出（請 pull 本 git repository 取得）|
 |June 23 23:59:59| 程式、報告上傳截止|
 |June 30| 對戰結果公布 |
