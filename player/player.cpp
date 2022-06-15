@@ -1,68 +1,80 @@
-#include <iostream>
-#include <cstdlib>
-#include <utility>
-#include <string>
+#include<bits/stdc++.h>
 
 using namespace std;
-typedef pair<int, int> PII;
 
-#define F first
-#define S second
-#define mkp make_pair
+enum MapObjs{
+	MINE = 'b',	//3 round
+	MUSHROOM = 'm',	//+1
+	PMUSHROOM = 'n', //-1
+	STAR = 's', // *2
+	PSTAR = 't', // /2
+	WALL = 'x',
+	PLAYER_A = 'A',
+	PLAYER_B = 'B',
+	PATH = '.'
+};
 
-int Round, M, N;
-char Graph[20][20]={};
+class Map{
+public:
+	void read(){
+		cin >> _height >> _width;
+		char inp;
+		for(unsigned short row=0 ; row < _height ; ++row){
+			for(unsigned short col=0 ; col < _width ; ++col){
+				cin >> inp;
+				_data[row][col] = (enum MapObjs)inp;
+				if(inp == PLAYER_A){
+					playersAt.first = make_pair(row, col);
+				}else if(inp == PLAYER_B){
+					playersAt.second = make_pair(row, col);
+				}
+			}
+		}
+	}
 
-bool valid(int x, int y){
-    return (
-        x >= 0 && x < M && y >=0 && y < N && 
-        Graph[x][y] != 'x' && 
-        Graph[x][y] != 'A' && Graph[x][y] != 'B'
-    );
+	array<enum MapObjs, 20>& operator[](const unsigned short row){
+		return _data[row];
+	}
+
+	array<enum MapObjs, 20>& at(const unsigned short row){
+		return _data.at(row);
+	}
+
+	bool isValid(const unsigned short row, const unsigned short col);
+
+	unsigned short height(){return _height;}
+	unsigned short width(){return _width;}
+	pair<pair<unsigned short, unsigned short>, pair<unsigned short, unsigned short>> playersAt;
+private:
+	array<array<enum MapObjs, 20>, 20> _data;
+	unsigned short _height;
+	unsigned short _width;
+};
+
+Map gameMap;
+enum MapObjs WHOAMI;
+unsigned short ROUND;
+pair<int, int>SCORE;
+time_t start_time;
+
+int main(){
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	start_time = time(nullptr);
+	cin >> ROUND;
+	gameMap.read();
+	cin >> SCORE.first >> SCORE.second;
+	{
+		char tmp;
+		cin >> tmp;
+		WHOAMI = (enum MapObjs)tmp;
+	}
+	return 0;
 }
 
-string next_dir(int x, int y, int num){
-    for(int i=0;i<4;i++){
-        switch(num%4) {
-            case 0: 
-                if(valid(x-1, y))
-                    return "UP";
-                else break;
-            case 1:
-                if(valid(x+1, y)) 
-                    return "DOWN";
-                else break;
-            case 2: 
-                if(valid(x, y-1))
-                    return "LEFT";
-                else break;
-            case 3: 
-                if(valid(x, y+1))
-                    return "RIGHT";
-                else break;
-            default: return "RIGHT";
-        }
-        num++;
-    }
-    return "RIGHT";
-}
-
-int main(void){
-    int A, B;
-    char me;
-    cin >> Round >> M >> N;
-    for(int i=0;i<M;i++)
-        for(int j=0;j<N;j++)
-            cin >> Graph[i][j];
-    cin >> A >> B >> me;
-    int x, y, rand_seed;
-    for(int i=0;i<M;i++)
-        for(int j=0;j<N;j++)
-            if(Graph[i][j] == me){
-                x = i;
-                y = j;
-                rand_seed = i + j;
-            }
-    srand(rand_seed);
-    cout << next_dir(x, y, rand()) << endl;
+bool Map::isValid(const unsigned short row, const unsigned short col){
+	return !(_data[row][col]==WALL
+			|| ((_data[row][col]==PLAYER_A || _data[row][col]==PLAYER_B) && _data[row][col] != WHOAMI)
+			|| 0 > row || row >= _height
+			|| 0 > col || col >= _width);
 }
