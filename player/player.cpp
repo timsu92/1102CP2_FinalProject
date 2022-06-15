@@ -72,12 +72,10 @@ Map gameMap;
 enum MapObjs WHOAMI;
 unsigned short ROUND;
 pair<int, int>SCORE;
-time_t start_time;
 
 int main(){
 	ios::sync_with_stdio(false);
 	cin.tie(0);
-	start_time = time(nullptr);
 	cin >> ROUND;
 	gameMap.read();
 	cin >> SCORE.first >> SCORE.second;
