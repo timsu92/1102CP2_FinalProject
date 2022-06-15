@@ -40,8 +40,6 @@ public:
 		return _data.at(row);
 	}
 
-	bool isValid(const unsigned short row, const unsigned short col);
-
 	unsigned short height(){return _height;}
 	unsigned short width(){return _width;}
 	pair<pair<unsigned short, unsigned short>, pair<unsigned short, unsigned short>> playersAt;
@@ -49,6 +47,25 @@ private:
 	array<array<enum MapObjs, 20>, 20> _data;
 	unsigned short _height;
 	unsigned short _width;
+};
+
+/* Return true if the test is passed */
+class Req{
+public:
+	static bool wall(const short &row, const short &col);
+	static bool opponent(const short &row, const short &col);
+	static bool outOfRange(const short &row, const short &col);
+
+	bool all(const short &row, const short &col){
+		auto j = _methods[0];
+		for(auto &i: _methods){
+			if(!(i)(row, col))
+				return false;
+		}
+		return true;
+	}
+private:
+	bool (*_methods[3])(const short&, const short&) = {wall, opponent, outOfRange};
 };
 
 Map gameMap;
@@ -72,9 +89,14 @@ int main(){
 	return 0;
 }
 
-bool Map::isValid(const unsigned short row, const unsigned short col){
-	return !(_data[row][col]==WALL
-			|| ((_data[row][col]==PLAYER_A || _data[row][col]==PLAYER_B) && _data[row][col] != WHOAMI)
-			|| 0 > row || row >= _height
-			|| 0 > col || col >= _width);
+bool Req::wall(const short &row, const short &col){
+	return gameMap[row][col] != WALL;
+}
+
+bool Req::opponent(const short &row, const short &col){
+	return !((gameMap[row][col] == PLAYER_A || gameMap[row][col] == PLAYER_B) && gameMap[row][col] != WHOAMI);
+}
+
+bool Req::outOfRange(const short &row, const short &col){
+	return 0 <= row && row < gameMap.height() && 0 <= col && col < gameMap.width();
 }
