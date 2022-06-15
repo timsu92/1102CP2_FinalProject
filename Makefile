@@ -32,14 +32,14 @@ judge1:
 	@cp player/player.cpp tmp/A.cpp
 	@cp bot/bot1.cpp tmp/B.cpp
 	@g++ tmp/A.cpp -o tmp/A
-	@g++ tmp/B.cpp -o tmp/B
+	@g++ -std=c++11 tmp/B.cpp -o tmp/B
 	@cd tmp && python judge.py
 	@cp tmp/move.log move_player_be_A.log
 	@rm tmp/*.log
 	@echo "bot1 be A, player be B"
 	@cp player/player.cpp tmp/B.cpp
 	@cp bot/bot1.cpp tmp/A.cpp
-	@g++ tmp/A.cpp -o tmp/A
+	@g++ -std=c++11 tmp/A.cpp -o tmp/A
 	@g++ tmp/B.cpp -o tmp/B
 	@cd tmp && python judge.py
 	@cp tmp/move.log move_player_be_B.log
@@ -53,14 +53,14 @@ judge2:
 	@cp player/player.cpp tmp/A.cpp
 	@cp bot/bot2.cpp tmp/B.cpp
 	@g++ tmp/A.cpp -o tmp/A
-	@g++ tmp/B.cpp -o tmp/B
+	@g++ -std=c++11 tmp/B.cpp -o tmp/B
 	@cd tmp && python judge.py
 	@cp tmp/move.log move_player_be_A.log
 	@rm tmp/*.log
 	@echo "bot2 be A, player be B"
 	@cp player/player.cpp tmp/B.cpp
 	@cp bot/bot2.cpp tmp/A.cpp
-	@g++ tmp/A.cpp -o tmp/A
+	@g++ -std=c++11 tmp/A.cpp -o tmp/A
 	@g++ tmp/B.cpp -o tmp/B
 	@cd tmp && python judge.py
 	@cp tmp/move.log move_player_be_B.log
@@ -74,14 +74,14 @@ judge3:
 	@cp player/player.cpp tmp/A.cpp
 	@cp bot/bot3.cpp tmp/B.cpp
 	@g++ tmp/A.cpp -o tmp/A
-	@g++ -w tmp/B.cpp -o tmp/B
+	@g++ -std=c++11 -w tmp/B.cpp -o tmp/B
 	@cd tmp && python judge.py
 	@cp tmp/move.log move_player_be_A.log
 	@rm tmp/*.log
 	@echo "bot3 be A, player be B"
 	@cp player/player.cpp tmp/B.cpp
 	@cp bot/bot3.cpp tmp/A.cpp
-	@g++ -w tmp/A.cpp -o tmp/A
+	@g++ -std=c++11 -w tmp/A.cpp -o tmp/A
 	@g++ tmp/B.cpp -o tmp/B
 	@cd tmp && python judge.py
 	@cp tmp/move.log move_player_be_B.log
