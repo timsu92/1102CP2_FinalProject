@@ -138,15 +138,14 @@ void Bot::benchmark(){
 		row = rand() % gameMap.height();
 		col = rand() % gameMap.width();
 	}while(gameMap[row][col] == WALL);
-	double tries[3];
+	double average = 0;
 	for(short i=0 ; i < 3 ; ++i){
 		auto start_clock = clock();
 		Required().all(row, col);
 		Complex().all(row, col, true);
-		tries[i] = (clock() - start_clock) * 1.0 / CLOCKS_PER_SEC;
+		average += (clock() - start_clock) * 1.0 / CLOCKS_PER_SEC / 3;
 	}
 
-	const double average = (tries[0] + tries[1] + tries[2]) / 3;
 	const auto idx4 = lower_bound(FOUR.begin(), FOUR.end(), 0.9 / average);
-	_maxDepth = idx4 - FOUR.begin();
+	_maxDepth = min(static_cast<unsigned short>(idx4 - FOUR.begin()+1), static_cast<unsigned short>(1001 - ROUND)); // 加一是因為第一層只有當前位置，沒有計算
 }
