@@ -52,10 +52,6 @@ private:
 	unsigned short _width;
 };
 
-inline double progTime(){
-	return clock() * 1.0 / CLOCKS_PER_SEC;
-}
-
 /* Return true if the test is passed */
 class Required{
 public:
@@ -98,6 +94,7 @@ public:
 	Bot(){
 		benchmark();
 	}
+
 	void benchmark();
 private:
 	unsigned short _maxDepth;
@@ -141,11 +138,15 @@ void Bot::benchmark(){
 		row = rand() % gameMap.height();
 		col = rand() % gameMap.width();
 	}while(gameMap[row][col] == WALL);
-	auto start_clock = clock();
-	Required().all(row, col);
-	Complex().all(row, col, true);
-	auto inteval = (clock() - start_clock) * 1.0 / CLOCKS_PER_SEC;
+	double tries[3];
+	for(short i=0 ; i < 3 ; ++i){
+		auto start_clock = clock();
+		Required().all(row, col);
+		Complex().all(row, col, true);
+		tries[i] = (clock() - start_clock) * 1.0 / CLOCKS_PER_SEC;
+	}
 
-	auto idx4 = lower_bound(FOUR.begin(), FOUR.end(), 0.9 / inteval);
+	const double average = (tries[0] + tries[1] + tries[2]) / 3;
+	const auto idx4 = lower_bound(FOUR.begin(), FOUR.end(), 0.9 / average);
 	_maxDepth = idx4 - FOUR.begin();
 }
