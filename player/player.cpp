@@ -73,20 +73,21 @@ private:
 
 class Complex{
 public:
-	int all(const short &row, const short &col, const bool &getMax){
-		int ret = getMax ? INT_MIN : INT_MAX;
+	static inline int step(const short &row, const short &col, const pair<int, int> &scores, const unsigned short depth){
+		return depth % 2 ? 0 : -1;
+	}
+
+	int all(const short &row, const short &col, const pair<int, int>&scores, const unsigned short depth){
+		int ret = 0;
 		for(auto &i : _methods){
-			ret = getMax ? max((i)(row, col), ret) : min((i)(row, col), ret);
-			if(ret == INT_MAX && getMax){
-				return ret;
-			}else if(ret == INT_MIN && !getMax){
-				return ret;
-			}
+			ret += (i)(row, col, scores, depth);
 		}
 		return ret;
 	}
 private:
-	int (*_methods[0])(const short&, const short&) = {};
+	int (*_methods[1])(const short&, const short&, const pair<int, int>&, const unsigned short) = {
+		step
+	};
 };
 
 class Bot{
