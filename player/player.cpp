@@ -45,7 +45,7 @@ public:
 
 	unsigned short height(){return _height;}
 	unsigned short width(){return _width;}
-	pair<pair<unsigned short, unsigned short>, pair<unsigned short, unsigned short>> playersAt;
+	pair<pair<short, short>, pair<short, short>> playersAt;
 private:
 	array<array<enum MapObjs, 20>, 20> _data;
 	unsigned short _height;
@@ -73,20 +73,22 @@ private:
 
 class Complex{
 public:
-	static inline int step(const short &row, const short &col, const pair<int, int> &scores, const unsigned short depth){
-		return depth % 2 ? 0 : -1;
+	static inline struct RateAndScores evenDownVote(const short &row, const short &col, const pair<int, int> &scores, const unsigned short depth){
+		return RateAndScores{depth % 2 ? 0 : -1, scores.first, scores.second};
 	}
 
-	int all(const short &row, const short &col, const pair<int, int>&scores, const unsigned short depth){
-		int ret = 0;
+	static struct RateAndScores collectObj(const short &row, const short &col, const pair<int, int> &scores, const unsigned short depth);
+
+	RateAndScores all(const short &row, const short &col, const pair<int, int>&scores, const unsigned short depth){
+		RateAndScores ret = {0, scores.first, scores.second};
 		for(auto &i : _methods){
 			ret += (i)(row, col, scores, depth);
 		}
 		return ret;
 	}
 private:
-	int (*_methods[1])(const short&, const short&, const pair<int, int>&, const unsigned short) = {
-		step
+	struct RateAndScores (*_methods[2])(const short&, const short&, const pair<int, int>&, const unsigned short) = {
+		evenDownVote, collectObj
 	};
 };
 
@@ -143,10 +145,52 @@ void Bot::benchmark(){
 	for(short i=0 ; i < 3 ; ++i){
 		auto start_clock = clock();
 		Required().all(row, col);
-		Complex().all(row, col, true);
+		Complex().all(row, col, make_pair(0, 0), 1);
 		average += (clock() - start_clock) * 1.0 / CLOCKS_PER_SEC / 3;
 	}
 
 	const auto idx4 = lower_bound(FOUR.begin(), FOUR.end(), 0.9 / average);
 	_maxDepth = min(static_cast<unsigned short>(idx4 - FOUR.begin()+1), static_cast<unsigned short>(1001 - ROUND)); // 加一是因為第一層只有當前位置，沒有計算
+}
+struct RateAndScores Complex::collectObj(const short &row, const short &col, const pair<int, int> &scores, const unsigned short depth){
+	struct RateAndScores ret{0, scores.first, scores.second};
+	int &myScore = WHOAMI == PLAYER_A ? ret.sa : ret.sb;
+	switch(gameMap[row][col]){
+		case PATH:
+			break;
+		case MINE:
+			ret.r = -2;
+			break;
+		case MUSHROOM:
+			ret.r = 1;
+			++myScore;
+			break;
+		case PMUSHROOM:
+			ret.r = -1;
+			--myScore;
+			break;
+		case STAR:
+			ret.r = myScore;
+			myScore *= 2;
+			break;
+		case PSTAR:
+			ret.r = -(myScore/2);
+			myScore /= 2;
+		case PLAYER_A:
+		case PLAYER_B:
+#ifdef DBG
+			if((gameMap[row][col] == PLAYER_A || gameMap[row][col] == PLAYER_B) && gameMap[row][col] != WHOAMI){
+				cerr << "[Complex::collectObj]found another player!\n";
+				ret.r = INT_MIN;
+			}
+#endif
+			break;
+		case WALL:
+#ifdef DBG
+			cerr << "[Complex::collectObj]found WALL!\n";
+			ret.r = INT_MIN;
+#endif
+			break;
+	}
+	return ret;
 }
