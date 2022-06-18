@@ -5,6 +5,28 @@ using namespace std;
 // 4的指數
 const vector<unsigned long> FOUR{4, 16, 64, 256, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304, 16777216, 67108864, 268435456, 1073741824, 4294967296, 17179869184, 68719476736, 274877906944, 1099511627776, 4398046511104, 17592186044416, 70368744177664, 281474976710656, 1125899906842624, 4503599627370496, 18014398509481984, 72057594037927936, 288230376151711744, 1152921504606846976, 4611686018427387904};
 
+const short DROW[] = {-1, 1, 0, 0}; const short DCOL[] = {0, 0, -1, 1};
+
+enum Direction{
+	UP, DOWN, LEFT, RIGHT
+};
+
+struct RateAndScores{
+	int r;
+	int sa;
+	int sb;
+
+	void operator+=(const struct RateAndScores& other){
+		r += other.r;
+		sa = other.sa;
+		sb = other.sb;
+	}
+
+	struct RateAndScores operator+(const struct RateAndScores &other){
+		return RateAndScores{r + other.r, other.sa, other.sb};
+	}
+};
+
 enum MapObjs{
 	MINE = 'b',	//3 round
 	MUSHROOM = 'm',	//+1
@@ -98,6 +120,7 @@ public:
 		benchmark();
 	}
 
+	int alpha_beta(const pair<short, short>&playerAt, const unsigned short depth, const bool isMax, const RateAndScores parentRnS, int prunePivot);
 	void benchmark();
 private:
 	unsigned short _maxDepth;
@@ -152,6 +175,58 @@ void Bot::benchmark(){
 	const auto idx4 = lower_bound(FOUR.begin(), FOUR.end(), 0.9 / average);
 	_maxDepth = min(static_cast<unsigned short>(idx4 - FOUR.begin()+1), static_cast<unsigned short>(1001 - ROUND)); // 加一是因為第一層只有當前位置，沒有計算
 }
+
+int Bot::alpha_beta(const pair<short, short>&playerAt, const unsigned short depth, const bool isMax, const RateAndScores parentRnS, int prunePivot){
+	if(depth == _maxDepth){
+		return 0;
+	}
+	int diffRate = isMax ? INT_MIN : INT_MAX;
+	for(enum Direction dir = (enum Direction)0 ; dir < 4 && (isMax ? diffRate < prunePivot : diffRate > prunePivot) ; dir = (enum Direction)((int)dir + 1)){
+		const pair<short, short>movedPlayerAt = make_pair(playerAt.first + DROW[dir], playerAt.second + DCOL[dir]);
+		if(!Required().all(movedPlayerAt.first, movedPlayerAt.second)){
+			continue;
+		}
+		const enum MapObjs thisObj = gameMap.at(movedPlayerAt.first).at(movedPlayerAt.second);
+		RateAndScores thisRnS = Complex().all(movedPlayerAt.first, movedPlayerAt.second, make_pair(parentRnS.sa, parentRnS.sb), depth+1);
+		if(isMax){
+			if(thisRnS.r == INT_MIN){
+				continue;
+			}else if(thisRnS.r == INT_MAX){
+				return INT_MAX;
+			}
+		}else{
+			if(thisRnS.r == INT_MAX){
+				continue;
+			}else if(thisRnS.r == INT_MIN){
+				return INT_MIN;
+			}
+		}
+		// 刪除這格地圖上的物件
+		gameMap[movedPlayerAt.first][movedPlayerAt.second] = PATH;
+		int nextRate = alpha_beta(movedPlayerAt, depth+1, !isMax, thisRnS + parentRnS, diffRate);
+		// 還原這格地圖上的物件
+		gameMap[movedPlayerAt.first][movedPlayerAt.second] = thisObj;
+		if(isMax){
+			if(nextRate == INT_MIN){
+				continue;
+			}else if(nextRate == INT_MAX){
+				return INT_MAX;
+			}else{
+				diffRate = max(diffRate, thisRnS.r + nextRate);
+			}
+		}else{
+			if(nextRate == INT_MAX){
+				continue;
+			}else if(nextRate == INT_MIN){
+				return INT_MIN;
+			}else{
+				diffRate = min(diffRate, thisRnS.r + nextRate);
+			}
+		}
+	}
+	return diffRate;
+}
+
 struct RateAndScores Complex::collectObj(const short &row, const short &col, const pair<int, int> &scores, const unsigned short depth){
 	struct RateAndScores ret{0, scores.first, scores.second};
 	int &myScore = WHOAMI == PLAYER_A ? ret.sa : ret.sb;
