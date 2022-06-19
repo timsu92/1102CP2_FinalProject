@@ -83,7 +83,6 @@ public:
 	static inline bool outOfRange(const short &row, const short &col);
 
 	bool all(const short &row, const short &col) const{
-		auto j = _methods[0];
 		for(auto &i: _methods){
 			if(!(i)(row, col))
 				return false;
@@ -91,7 +90,7 @@ public:
 		return true;
 	}
 private:
-	bool (*_methods[3])(const short&, const short&) = {wall, opponent, outOfRange};
+	bool (*_methods[3])(const short&, const short&) = {outOfRange, wall, opponent};
 };
 
 class Complex{
@@ -126,7 +125,7 @@ public:
 	void benchmark();
 private:
 	unsigned short _maxDepth;
-	const char* _DIR_STR[4] = {"UP", "DOWN", "LEFT", "RIGHT"};
+	const char* _DIR_STR[4] = {"UP\n", "DOWN\n", "LEFT\n", "RIGHT\n"};
 };
 
 Map gameMap;
@@ -174,8 +173,9 @@ void Bot::benchmark(){
 		auto start_clock = clock();
 		Required().all(row, col);
 		Complex().all(row, col, make_pair(0, 0), 1);
-		average += (clock() - start_clock) * 1.0 / CLOCKS_PER_SEC / 3;
+		average += (clock() - start_clock) * 1.0 / CLOCKS_PER_SEC;
 	}
+	average /= 3;
 
 	const auto idx4 = lower_bound(FOUR.begin(), FOUR.end(), 0.9 / average);
 	_maxDepth = min(static_cast<unsigned short>(idx4 - FOUR.begin()+1), static_cast<unsigned short>(1001 - ROUND)); // 加一是因為第一層只有當前位置，沒有計算
