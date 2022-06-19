@@ -22,7 +22,7 @@ struct RateAndScores{
 		sb = other.sb;
 	}
 
-	struct RateAndScores operator+(const struct RateAndScores &other) const{
+	inline struct RateAndScores operator+(const struct RateAndScores &other) const{
 		return RateAndScores{r + other.r, other.sa, other.sb};
 	}
 };
@@ -120,10 +120,12 @@ public:
 		benchmark();
 	}
 
+	const char* decide() const;
 	int alpha_beta(const pair<short, short>&playerAt, const unsigned short depth, const bool isMax, const RateAndScores &parentRnS, int prunePivot) const;
 	void benchmark();
 private:
 	unsigned short _maxDepth;
+	const char* _DIR_STR[4] = {"UP", "DOWN", "LEFT", "RIGHT"};
 };
 
 Map gameMap;
@@ -143,6 +145,8 @@ int main(){
 		cin >> tmp;
 		WHOAMI = (enum MapObjs)tmp;
 	}
+	Bot bot;
+	cout << bot.decide();
 	return 0;
 }
 
@@ -176,12 +180,12 @@ void Bot::benchmark(){
 	_maxDepth = min(static_cast<unsigned short>(idx4 - FOUR.begin()+1), static_cast<unsigned short>(1001 - ROUND)); // 加一是因為第一層只有當前位置，沒有計算
 }
 
-	if(depth == _maxDepth){
 int Bot::alpha_beta(const pair<short, short>&playerAt, const unsigned short depth, const bool isMax, const RateAndScores &parentRnS, int prunePivot) const{
+	if(depth >= _maxDepth){
 		return 0;
 	}
 	int diffRate = isMax ? INT_MIN : INT_MAX;
-	for(enum Direction dir = (enum Direction)0 ; dir < 4 && (isMax ? diffRate < prunePivot : diffRate > prunePivot) ; dir = (enum Direction)((int)dir + 1)){
+	for(short dir = 0 ; dir < 4 && (isMax ? diffRate < prunePivot : diffRate > prunePivot) ; ++dir){
 		const pair<short, short>movedPlayerAt = make_pair(playerAt.first + DROW[dir], playerAt.second + DCOL[dir]);
 		if(!Required().all(movedPlayerAt.first, movedPlayerAt.second)){
 			continue;
@@ -203,7 +207,7 @@ int Bot::alpha_beta(const pair<short, short>&playerAt, const unsigned short dept
 		}
 		// 刪除這格地圖上的物件
 		gameMap[movedPlayerAt.first][movedPlayerAt.second] = PATH;
-		int nextRate = alpha_beta(movedPlayerAt, depth+1, !isMax, thisRnS + parentRnS, diffRate);
+		int nextRate = alpha_beta(movedPlayerAt, depth+1, !isMax, parentRnS + thisRnS, diffRate);
 		// 還原這格地圖上的物件
 		gameMap[movedPlayerAt.first][movedPlayerAt.second] = thisObj;
 		if(isMax){
@@ -268,4 +272,36 @@ struct RateAndScores Complex::collectObj(const short &row, const short &col, con
 			break;
 	}
 	return ret;
+}
+
+const char* Bot::decide() const{
+	short maxDirIdx = 0;
+	int maxRate = INT_MIN; // diffRate
+	const pair<short, short> &myLocation = WHOAMI == PLAYER_A ? gameMap.playersAt.first : gameMap.playersAt.second;
+	for(short dir = 0 ; dir < 4 ; ++dir){
+		const pair<short, short> movedPlayerAt = make_pair(myLocation.first + DROW[dir], myLocation.second + DCOL[dir]);
+		if(!Required().all(movedPlayerAt.first, movedPlayerAt.second)){
+			continue;
+		}
+		const enum MapObjs thisObj = gameMap[movedPlayerAt.first][movedPlayerAt.second];
+		int thisRate = Complex().all(movedPlayerAt.first, movedPlayerAt.second, SCORE, 1).r;
+		if(thisRate == INT_MIN){continue;}
+		else if(thisRate == INT_MAX){
+			maxDirIdx = dir;
+			break;
+		}
+		gameMap[movedPlayerAt.first][movedPlayerAt.second] = PATH;
+		int nextRate = alpha_beta(movedPlayerAt, 1, false, RateAndScores{0, SCORE.first, SCORE.second}, maxRate);
+		gameMap[movedPlayerAt.first][movedPlayerAt.second] = thisObj;
+		if(nextRate == INT_MIN){continue;}
+		else if(nextRate == INT_MAX){
+			maxDirIdx = dir;
+			break;
+		}
+		else if(thisRate + nextRate > maxRate){
+			maxRate = thisRate + nextRate;
+			maxDirIdx = dir;
+		}
+	}
+	return _DIR_STR[maxDirIdx];
 }
