@@ -77,9 +77,9 @@ private:
 /* Return true if the test is passed */
 class Required{
 public:
-	static bool wall(const short &row, const short &col);
-	static bool opponent(const short &row, const short &col);
-	static bool outOfRange(const short &row, const short &col);
+	static inline bool wall(const short &row, const short &col);
+	static inline bool opponent(const short &row, const short &col);
+	static inline bool outOfRange(const short &row, const short &col);
 
 	bool all(const short &row, const short &col) const{
 		auto j = _methods[0];
@@ -150,15 +150,15 @@ int main(){
 	return 0;
 }
 
-bool Required::wall(const short &row, const short &col){
+inline bool Required::wall(const short &row, const short &col){
 	return gameMap[row][col] != WALL;
 }
 
-bool Required::opponent(const short &row, const short &col){
+inline bool Required::opponent(const short &row, const short &col){
 	return !((gameMap[row][col] == PLAYER_A || gameMap[row][col] == PLAYER_B) && gameMap[row][col] != WHOAMI);
 }
 
-bool Required::outOfRange(const short &row, const short &col){
+inline bool Required::outOfRange(const short &row, const short &col){
 	return 0 <= row && row < gameMap.height() && 0 <= col && col < gameMap.width();
 }
 
@@ -167,7 +167,7 @@ void Bot::benchmark(){
 	do{
 		row = rand() % gameMap.height();
 		col = rand() % gameMap.width();
-	}while(gameMap[row][col] == WALL);
+	}while(gameMap[row][col] == WALL || gameMap[row][col] == PLAYER_A || gameMap[row][col] == PLAYER_B);
 	double average = 0;
 	for(short i=0 ; i < 3 ; ++i){
 		auto start_clock = clock();
