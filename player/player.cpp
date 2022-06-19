@@ -22,7 +22,7 @@ struct RateAndScores{
 		sb = other.sb;
 	}
 
-	struct RateAndScores operator+(const struct RateAndScores &other){
+	struct RateAndScores operator+(const struct RateAndScores &other) const{
 		return RateAndScores{r + other.r, other.sa, other.sb};
 	}
 };
@@ -81,7 +81,7 @@ public:
 	static bool opponent(const short &row, const short &col);
 	static bool outOfRange(const short &row, const short &col);
 
-	bool all(const short &row, const short &col){
+	bool all(const short &row, const short &col) const{
 		auto j = _methods[0];
 		for(auto &i: _methods){
 			if(!(i)(row, col))
@@ -101,7 +101,7 @@ public:
 
 	static struct RateAndScores collectObj(const short &row, const short &col, const pair<int, int> &scores, const unsigned short depth);
 
-	RateAndScores all(const short &row, const short &col, const pair<int, int>&scores, const unsigned short depth){
+	RateAndScores all(const short &row, const short &col, const pair<int, int>&scores, const unsigned short depth) const{
 		RateAndScores ret = {0, scores.first, scores.second};
 		for(auto &i : _methods){
 			ret += (i)(row, col, scores, depth);
@@ -120,7 +120,7 @@ public:
 		benchmark();
 	}
 
-	int alpha_beta(const pair<short, short>&playerAt, const unsigned short depth, const bool isMax, const RateAndScores parentRnS, int prunePivot);
+	int alpha_beta(const pair<short, short>&playerAt, const unsigned short depth, const bool isMax, const RateAndScores &parentRnS, int prunePivot) const;
 	void benchmark();
 private:
 	unsigned short _maxDepth;
@@ -176,8 +176,8 @@ void Bot::benchmark(){
 	_maxDepth = min(static_cast<unsigned short>(idx4 - FOUR.begin()+1), static_cast<unsigned short>(1001 - ROUND)); // 加一是因為第一層只有當前位置，沒有計算
 }
 
-int Bot::alpha_beta(const pair<short, short>&playerAt, const unsigned short depth, const bool isMax, const RateAndScores parentRnS, int prunePivot){
 	if(depth == _maxDepth){
+int Bot::alpha_beta(const pair<short, short>&playerAt, const unsigned short depth, const bool isMax, const RateAndScores &parentRnS, int prunePivot) const{
 		return 0;
 	}
 	int diffRate = isMax ? INT_MIN : INT_MAX;
