@@ -70,6 +70,7 @@ public:
 	unsigned short height(){return _height;}
 	unsigned short width(){return _width;}
 	pair<pair<short, short>, pair<short, short>> playersAt;
+	pair<short, short> &myLocation = playersAt.first, &oppoLocation = playersAt.first;
 private:
 	array<array<enum MapObjs, 20>, 20> _data;
 	unsigned short _height;
@@ -130,6 +131,13 @@ int main(){
 		char tmp;
 		cin >> tmp;
 		WHOAMI = (enum MapObjs)tmp;
+		if(WHOAMI == PLAYER_A){
+			gameMap.myLocation = gameMap.playersAt.first;
+			gameMap.oppoLocation = gameMap.playersAt.second;
+		}else{
+			gameMap.myLocation = gameMap.playersAt.second;
+			gameMap.oppoLocation = gameMap.playersAt.first;
+		}
 	}
 	Bot bot;
 	cout << bot.decide();
@@ -313,9 +321,8 @@ const char* Bot::decide() const{
 	}
 	short maxDirIdx = 0;
 	int maxRate = INT_MIN; // diffRate
-	const pair<short, short> &myLocation = WHOAMI == PLAYER_A ? gameMap.playersAt.first : gameMap.playersAt.second;
 	for(short dir = 0 ; dir < 4 ; ++dir){
-		const pair<short, short> movedPlayerAt = make_pair(myLocation.first + DROW[dir], myLocation.second + DCOL[dir]);
+		const pair<short, short> movedPlayerAt = make_pair(gameMap.myLocation.first + DROW[dir], gameMap.myLocation.second + DCOL[dir]);
 #ifdef DBG
 		cerr << "[Bot::decide]player moved to (" << movedPlayerAt.first << ',' << movedPlayerAt.second << ")\n";
 #endif
