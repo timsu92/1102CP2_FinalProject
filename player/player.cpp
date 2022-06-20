@@ -70,7 +70,7 @@ public:
 	unsigned short height(){return _height;}
 	unsigned short width(){return _width;}
 	pair<pair<short, short>, pair<short, short>> playersAt;
-	pair<short, short> &myLocation = playersAt.first, &oppoLocation = playersAt.first;
+	pair<short, short> myLocation = make_pair(5,5), oppoLocation = make_pair(5,5); // dummy, set in main
 private:
 	array<array<enum MapObjs, 20>, 20> _data;
 	unsigned short _height;
@@ -82,7 +82,6 @@ inline bool Required(const short &row, const short &col);
 
 class Complex{
 public:
-
 	static struct RateAndScores collectObj(const short &row, const short &col, const pair<int, int> &scores, const unsigned short depth);
 
 	RateAndScores all(const short &row, const short &col, const pair<int, int>&scores, const unsigned short depth) const{
@@ -171,6 +170,9 @@ void Bot::benchmark(){
 	}
 	if(dirsOK == 0){
 		_maxDepth = 0;
+#ifdef DBGTIME
+		cerr << "[Bot::benchmark]running up to " << _maxDepth << " steps (" << dirsOK << " directions)\n";
+#endif
 		return;
 	}else{
 		const auto idx4 = lower_bound(FOUR.begin(), FOUR.end(), 0.9 / average * 4 / dirsOK);
