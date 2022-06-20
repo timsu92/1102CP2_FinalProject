@@ -2,7 +2,7 @@
 
 using namespace std;
 // #define DBG
-#define DBGTIME
+// #define DBGTIME
 
 // 4的指數
 const vector<unsigned long> FOUR{4, 16, 64, 256, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304, 16777216, 67108864, 268435456, 1073741824, 4294967296, 17179869184, 68719476736, 274877906944, 1099511627776, 4398046511104, 17592186044416, 70368744177664, 281474976710656, 1125899906842624, 4503599627370496, 18014398509481984, 72057594037927936, 288230376151711744, 1152921504606846976, 4611686018427387904};
@@ -362,6 +362,11 @@ const char* Bot::decide() const{
 		else if(thisRate + nextRate > maxRate){
 			maxRate = thisRate + nextRate;
 			maxDirIdx = dir;
+		}else if(thisRate + nextRate == maxRate){
+			if(rand() % 2 == 0){
+				maxRate = thisRate + nextRate;
+				maxDirIdx = dir;
+			}
 		}
 	}
 	return _DIR_STR[maxDirIdx];
