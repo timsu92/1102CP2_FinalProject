@@ -2,6 +2,7 @@
 
 using namespace std;
 #define DBG
+#define DBGTIME
 
 // 4的指數
 const vector<unsigned long> FOUR{4, 16, 64, 256, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304, 16777216, 67108864, 268435456, 1073741824, 4294967296, 17179869184, 68719476736, 274877906944, 1099511627776, 4398046511104, 17592186044416, 70368744177664, 281474976710656, 1125899906842624, 4503599627370496, 18014398509481984, 72057594037927936, 288230376151711744, 1152921504606846976, 4611686018427387904};
@@ -109,7 +110,7 @@ public:
 	int alpha_beta(const pair<short, short>&playerAt, const unsigned short depth, const bool isMax, const RateAndScores &parentRnS, int prunePivot) const;
 	void benchmark();
 private:
-	unsigned short _maxDepth;
+	unsigned short _maxDepth = 1; // changed later in benchmark
 	const char* _DIR_STR[4] = {"UP\n", "DOWN\n", "LEFT\n", "RIGHT\n"};
 };
 
@@ -136,24 +137,32 @@ int main(){
 }
 
 void Bot::benchmark(){
-	unsigned short row, col;
-	do{
-		row = rand() % gameMap.height();
-		col = rand() % gameMap.width();
-	}while(gameMap[row][col] == WALL || gameMap[row][col] == PLAYER_A || gameMap[row][col] == PLAYER_B);
+	const unsigned short &row = WHOAMI == PLAYER_A ? gameMap.playersAt.first.first : gameMap.playersAt.second.first,
+		  &col = WHOAMI == PLAYER_A ? gameMap.playersAt.first.second : gameMap.playersAt.second.second;
 	double average = 0;
 	for(short i=0 ; i < 3 ; ++i){
 		auto start_clock = clock();
-		Complex().all(row, col, make_pair(0, 0), 1);
+		alpha_beta(make_pair(row, col), 0, true, RateAndScores{0, SCORE.first, SCORE.second}, INT_MAX);
 		average += (clock() - start_clock) * 1.0 / CLOCKS_PER_SEC;
 	}
 	average /= 3;
 
-	const auto idx4 = lower_bound(FOUR.begin(), FOUR.end(), 0.9 / average);
-	_maxDepth = min(static_cast<unsigned short>(idx4 - FOUR.begin()+1), static_cast<unsigned short>(1001 - ROUND)); // 加一是因為第一層只有當前位置，沒有計算
-#ifdef DBG
-	cerr << "[Bot::benchmark]execution costs " << average << " s, which is " << 0.9/average << " executions\n";
-	cerr << "[Bot::benchmark]running up to " << _maxDepth << " steps\n";
+	short dirsOK = 4;
+	for(short dir=0 ; dir < 4 ; ++dir){
+		if(!Required(row + DROW[dir], col + DCOL[dir])){
+			--dirsOK;
+		}
+	}
+	if(dirsOK == 0){
+		_maxDepth = 0;
+		return;
+	}else{
+		const auto idx4 = lower_bound(FOUR.begin(), FOUR.end(), 0.9 / average * 4 / dirsOK);
+		_maxDepth = min(static_cast<unsigned short>((idx4 - FOUR.begin()+1)), static_cast<unsigned short>(1001 - ROUND)); // 加一是因為第一層只有當前位置，沒有計算
+	}
+#ifdef DBGTIME
+	cerr << "[Bot::benchmark]execution costs " << average << "s, which is " << 0.9/average << " executions\n";
+	cerr << "[Bot::benchmark]running up to " << _maxDepth << " steps (" << dirsOK << " directions)\n";
 #endif
 }
 
@@ -299,6 +308,9 @@ struct RateAndScores Complex::collectObj(const short &row, const short &col, con
 }
 
 const char* Bot::decide() const{
+	if(_maxDepth == 0){ // 無路可走
+		return "UP\n";
+	}
 	short maxDirIdx = 0;
 	int maxRate = INT_MIN; // diffRate
 	const pair<short, short> &myLocation = WHOAMI == PLAYER_A ? gameMap.playersAt.first : gameMap.playersAt.second;
