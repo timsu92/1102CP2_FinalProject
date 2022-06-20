@@ -82,12 +82,13 @@ inline bool Required(const short &row, const short &col);
 
 class Complex{
 public:
-	static struct RateAndScores collectObj(const pair<short, short> &movedPlayerAt, const pair<int, int> &scores, const unsigned short depth);
+	static struct RateAndScores collectObj(const pair<short, short> &playerAt,const pair<short, short> &movedPlayerAt, const pair<int, int> &scores, const unsigned short depth);
+	static struct RateAndScores goFar(const pair<short, short> &playerAt, const pair<short, short> &movedPlayerAt, const pair<int, int> &scores, const unsigned short depth);
 
-	RateAndScores all(const pair<short, short> &movedPlayerAt, const pair<int, int>&scores, const unsigned short depth) const{
+	RateAndScores all(const pair<short, short> &playerAt, const pair<short, short> &movedPlayerAt, const pair<int, int>&scores, const unsigned short depth) const{
 		RateAndScores ret = {0, scores.first, scores.second};
 		for(auto &i : _methods){
-			auto next = (i)(movedPlayerAt, scores, depth);
+			auto next = (i)(playerAt, movedPlayerAt, scores, depth);
 			if(next.r == -DBL_MAX){
 				ret.r = -DBL_MAX;
 				break;
@@ -103,8 +104,8 @@ public:
 		return ret;
 	}
 private:
-	struct RateAndScores (*_methods[1])(const pair<short, short>&, const pair<int, int>&, const unsigned short) = {
-		collectObj
+	struct RateAndScores (*_methods[2])(const pair<short, short>&, const pair<short, short>&, const pair<int, int>&, const unsigned short) = {
+		collectObj, goFar
 	};
 };
 
@@ -215,7 +216,7 @@ double Bot::alpha_beta(const pair<short, short>&playerAt, const unsigned short d
 		cerr << "[Bot::alpha_beta]Required passed\n"
 			"[Bot::alpha_beta]thisObj is " << (char)thisObj << endl;
 #endif
-		RateAndScores thisRnS = Complex().all(movedPlayerAt, make_pair(parentRnS.sa, parentRnS.sb), depth+1);
+		RateAndScores thisRnS = Complex().all(playerAt, movedPlayerAt, make_pair(parentRnS.sa, parentRnS.sb), depth+1);
 #ifdef DBG
 		cerr << "[Bot::alpha_beta]thisRnS(Complex)={" << thisRnS.r << ',' << thisRnS.sa << ',' << thisRnS.sb << "}\n";
 #endif
@@ -282,7 +283,7 @@ double Bot::alpha_beta(const pair<short, short>&playerAt, const unsigned short d
 	return diffRate;
 }
 
-struct RateAndScores Complex::collectObj(const pair<short, short> &movedPlayerAt, const pair<int, int> &scores, const unsigned short depth){
+struct RateAndScores Complex::collectObj(const pair<short, short> &playerAt, const pair<short, short> &movedPlayerAt, const pair<int, int> &scores, const unsigned short depth){
 	struct RateAndScores ret{0, scores.first, scores.second};
 	int &myScore = WHOAMI == PLAYER_A ? ret.sa : ret.sb;
 	switch(gameMap[movedPlayerAt.first][movedPlayerAt.second]){
@@ -336,7 +337,7 @@ const char* Bot::decide() const{
 		cerr << "[Bot::decide]Required passed\n"
 			"[Bot::decide]thisObj is " << (char)thisObj << endl;
 #endif
-		double thisRate = Complex().all(movedPlayerAt, SCORE, 1).r;
+		double thisRate = Complex().all(gameMap.myLocation, movedPlayerAt, SCORE, 1).r;
 #ifdef DBG
 		cerr << "[Bot::decide]thisRate=" << thisRate << endl;
 #endif
