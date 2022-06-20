@@ -1,7 +1,7 @@
 #include<bits/stdc++.h>
 
 using namespace std;
-#define DBG
+// #define DBG
 #define DBGTIME
 
 // 4的指數
@@ -14,7 +14,7 @@ enum Direction{
 };
 
 struct RateAndScores{
-	int r;
+	double r;
 	int sa;
 	int sb;
 
@@ -82,22 +82,30 @@ inline bool Required(const short &row, const short &col);
 
 class Complex{
 public:
-	static inline struct RateAndScores evenDownVote(const short &row, const short &col, const pair<int, int> &scores, const unsigned short depth){
-		return RateAndScores{depth % 2 ? 0 : -1, scores.first, scores.second};
-	}
 
 	static struct RateAndScores collectObj(const short &row, const short &col, const pair<int, int> &scores, const unsigned short depth);
 
 	RateAndScores all(const short &row, const short &col, const pair<int, int>&scores, const unsigned short depth) const{
 		RateAndScores ret = {0, scores.first, scores.second};
 		for(auto &i : _methods){
-			ret += (i)(row, col, scores, depth);
+			auto next = (i)(row, col, scores, depth);
+			if(next.r == -DBL_MAX){
+				ret.r = -DBL_MAX;
+				break;
+			}else if(ret.r == DBL_MAX || next.r == DBL_MAX){
+				ret.r = DBL_MAX;
+				ret.sa = next.sa;
+				ret.sb = next.sb;
+			}else{
+				ret += next;
+			}
+
 		}
 		return ret;
 	}
 private:
-	struct RateAndScores (*_methods[2])(const short&, const short&, const pair<int, int>&, const unsigned short) = {
-		evenDownVote, collectObj
+	struct RateAndScores (*_methods[1])(const short&, const short&, const pair<int, int>&, const unsigned short) = {
+		collectObj
 	};
 };
 
@@ -108,7 +116,7 @@ public:
 	}
 
 	const char* decide() const;
-	int alpha_beta(const pair<short, short>&playerAt, const unsigned short depth, const bool isMax, const RateAndScores &parentRnS, int prunePivot) const;
+	double alpha_beta(const pair<short, short>&playerAt, const unsigned short depth, const bool isMax, const RateAndScores &parentRnS, double prunePivot) const;
 	void benchmark();
 private:
 	unsigned short _maxDepth = 1; // changed later in benchmark
@@ -150,7 +158,7 @@ void Bot::benchmark(){
 	double average = 0;
 	for(short i=0 ; i < 3 ; ++i){
 		auto start_clock = clock();
-		alpha_beta(make_pair(row, col), 0, true, RateAndScores{0, SCORE.first, SCORE.second}, INT_MAX);
+		alpha_beta(make_pair(row, col), 0, true, RateAndScores{0, SCORE.first, SCORE.second}, DBL_MAX) * 0.8;
 		average += (clock() - start_clock) * 1.0 / CLOCKS_PER_SEC;
 	}
 	average /= 3;
@@ -174,14 +182,14 @@ void Bot::benchmark(){
 #endif
 }
 
-int Bot::alpha_beta(const pair<short, short>&playerAt, const unsigned short depth, const bool isMax, const RateAndScores &parentRnS, int prunePivot) const{
+double Bot::alpha_beta(const pair<short, short>&playerAt, const unsigned short depth, const bool isMax, const RateAndScores &parentRnS, double prunePivot) const{
 	if(depth >= _maxDepth){
 #ifdef DBG
 		cerr << "[Bot::alpha_beta]_maxDepth reached\n";
 #endif 
 		return 0;
 	}
-	int diffRate = isMax ? INT_MIN : INT_MAX;
+	double diffRate = isMax ? -DBL_MAX : DBL_MAX;
 	for(short dir = 0 ; dir < 4 && (isMax ? diffRate < prunePivot : diffRate > prunePivot) ; ++dir){
 		const pair<short, short>movedPlayerAt = make_pair(playerAt.first + DROW[dir], playerAt.second + DCOL[dir]);
 #ifdef DBG
@@ -200,7 +208,7 @@ int Bot::alpha_beta(const pair<short, short>&playerAt, const unsigned short dept
 #endif 
 			continue;
 		}
-		const enum MapObjs thisObj = gameMap.at(movedPlayerAt.first).at(movedPlayerAt.second);
+		const enum MapObjs thisObj = gameMap[movedPlayerAt.first][movedPlayerAt.second];
 #ifdef DBG
 		cerr << "[Bot::alpha_beta]Required passed\n"
 			"[Bot::alpha_beta]thisObj is " << (char)thisObj << endl;
@@ -210,16 +218,16 @@ int Bot::alpha_beta(const pair<short, short>&playerAt, const unsigned short dept
 		cerr << "[Bot::alpha_beta]thisRnS(Complex)={" << thisRnS.r << ',' << thisRnS.sa << ',' << thisRnS.sb << "}\n";
 #endif
 		if(isMax){
-			if(thisRnS.r == INT_MIN){
+			if(thisRnS.r == -DBL_MAX){
 				continue;
-			}else if(thisRnS.r == INT_MAX){
-				return INT_MAX;
+			}else if(thisRnS.r == DBL_MAX){
+				return DBL_MAX;
 			}
 		}else{
-			if(thisRnS.r == INT_MAX){
+			if(thisRnS.r == DBL_MAX){
 				continue;
-			}else if(thisRnS.r == INT_MIN){
-				return INT_MIN;
+			}else if(thisRnS.r == -DBL_MAX){
+				return -DBL_MAX;
 			}
 		}
 		// 刪除這格地圖上的物件
@@ -227,7 +235,7 @@ int Bot::alpha_beta(const pair<short, short>&playerAt, const unsigned short dept
 #ifdef DBG
 		cerr << "[Bot::alpha_beta]call alpha_beta by playerAt=(" << movedPlayerAt.first << ',' << movedPlayerAt.second << "), depth=" << depth+1 << ", " << (isMax ? "min" : "max") << ", RnS={" << (parentRnS + thisRnS).r << ',' << (parentRnS + thisRnS).sa << ',' << (parentRnS + thisRnS).sb << ", prunePivot=" << diffRate << endl;
 #endif
-		int nextRate = alpha_beta(movedPlayerAt, depth+1, !isMax, parentRnS + thisRnS, diffRate);
+		double nextRate = alpha_beta(movedPlayerAt, depth+1, !isMax, parentRnS + thisRnS, diffRate) * 0.8;
 #ifdef DBG
 		cerr << "[Bot::alpha_beta]back to playerAt (" << movedPlayerAt.first << ',' << movedPlayerAt.second << "), depth=" << depth << endl <<
 			"[Bot::alpha_beta]nextRate=" << nextRate << endl;
@@ -235,10 +243,10 @@ int Bot::alpha_beta(const pair<short, short>&playerAt, const unsigned short dept
 		// 還原這格地圖上的物件
 		gameMap[movedPlayerAt.first][movedPlayerAt.second] = thisObj;
 		if(isMax){
-			if(nextRate == INT_MIN){
+			if(nextRate == -DBL_MAX){
 				continue;
-			}else if(nextRate == INT_MAX){
-				return INT_MAX;
+			}else if(nextRate == DBL_MAX){
+				return DBL_MAX;
 			}else{
 #ifdef DBG
 				if(thisRnS.r + nextRate > diffRate){
@@ -250,10 +258,10 @@ int Bot::alpha_beta(const pair<short, short>&playerAt, const unsigned short dept
 				diffRate = max(diffRate, thisRnS.r + nextRate);
 			}
 		}else{
-			if(nextRate == INT_MAX){
+			if(nextRate == DBL_MAX){
 				continue;
-			}else if(nextRate == INT_MIN){
-				return INT_MIN;
+			}else if(nextRate == -DBL_MAX){
+				return -DBL_MAX;
 			}else{
 #ifdef DBG
 				if(thisRnS.r + nextRate < diffRate){
@@ -276,8 +284,6 @@ struct RateAndScores Complex::collectObj(const short &row, const short &col, con
 	struct RateAndScores ret{0, scores.first, scores.second};
 	int &myScore = WHOAMI == PLAYER_A ? ret.sa : ret.sb;
 	switch(gameMap[row][col]){
-		case PATH:
-			break;
 		case MINE:
 			ret.r = -2;
 			break;
@@ -294,22 +300,13 @@ struct RateAndScores Complex::collectObj(const short &row, const short &col, con
 			myScore *= 2;
 			break;
 		case PSTAR:
-			ret.r = -(myScore/2);
+			ret.r = -(int)(myScore/2);
 			myScore /= 2;
+			break;
+		case PATH:
 		case PLAYER_A:
 		case PLAYER_B:
-#ifdef DBG
-			if((gameMap[row][col] == PLAYER_A || gameMap[row][col] == PLAYER_B) && gameMap[row][col] != WHOAMI){
-				cerr << "[Complex::collectObj]found another player!\n";
-				ret.r = INT_MIN;
-			}
-#endif
-			break;
 		case WALL:
-#ifdef DBG
-			cerr << "[Complex::collectObj]found WALL!\n";
-			ret.r = INT_MIN;
-#endif
 			break;
 	}
 	return ret;
@@ -320,7 +317,7 @@ const char* Bot::decide() const{
 		return "UP\n";
 	}
 	short maxDirIdx = 0;
-	int maxRate = INT_MIN; // diffRate
+	double maxRate = -DBL_MAX; // diffRate
 	for(short dir = 0 ; dir < 4 ; ++dir){
 		const pair<short, short> movedPlayerAt = make_pair(gameMap.myLocation.first + DROW[dir], gameMap.myLocation.second + DCOL[dir]);
 #ifdef DBG
@@ -337,12 +334,12 @@ const char* Bot::decide() const{
 		cerr << "[Bot::decide]Required passed\n"
 			"[Bot::decide]thisObj is " << (char)thisObj << endl;
 #endif
-		int thisRate = Complex().all(movedPlayerAt.first, movedPlayerAt.second, SCORE, 1).r;
+		double thisRate = Complex().all(movedPlayerAt.first, movedPlayerAt.second, SCORE, 1).r;
 #ifdef DBG
 		cerr << "[Bot::decide]thisRate=" << thisRate << endl;
 #endif
-		if(thisRate == INT_MIN){continue;}
-		else if(thisRate == INT_MAX){
+		if(thisRate == -DBL_MAX){continue;}
+		else if(thisRate == DBL_MAX){
 			maxDirIdx = dir;
 			break;
 		}
@@ -350,13 +347,13 @@ const char* Bot::decide() const{
 #ifdef DBG
 		cerr << "[Bot::decide]call alpha_beta by playerAt (" << movedPlayerAt.first << ',' << movedPlayerAt.second << "), depth=1, min, RnS={0," << SCORE.first << ',' << SCORE.second << "}, prunePivot=" << maxRate << endl;
 #endif
-		int nextRate = alpha_beta(movedPlayerAt, 1, false, RateAndScores{0, SCORE.first, SCORE.second}, maxRate);
+		double nextRate = alpha_beta(movedPlayerAt, 1, false, RateAndScores{0, SCORE.first, SCORE.second}, maxRate);
 		gameMap[movedPlayerAt.first][movedPlayerAt.second] = thisObj;
 #ifdef DBG
 		cerr << "[Bot::decide]nextRate=" << nextRate << endl;
 #endif
-		if(nextRate == INT_MIN){continue;}
-		else if(nextRate == INT_MAX){
+		if(nextRate == -DBL_MAX){continue;}
+		else if(nextRate == DBL_MAX){
 			maxDirIdx = dir;
 			break;
 		}
