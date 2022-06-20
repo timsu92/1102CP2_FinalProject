@@ -76,22 +76,7 @@ private:
 };
 
 /* Return true if the test is passed */
-class Required{
-public:
-	static inline bool wall(const short &row, const short &col);
-	static inline bool opponent(const short &row, const short &col);
-	static inline bool outOfRange(const short &row, const short &col);
-
-	bool all(const short &row, const short &col) const{
-		for(auto &i: _methods){
-			if(!(i)(row, col))
-				return false;
-		}
-		return true;
-	}
-private:
-	bool (*_methods[3])(const short&, const short&) = {outOfRange, wall, opponent};
-};
+inline bool Required(const short &row, const short &col);
 
 class Complex{
 public:
@@ -150,18 +135,6 @@ int main(){
 	return 0;
 }
 
-inline bool Required::wall(const short &row, const short &col){
-	return gameMap[row][col] != WALL;
-}
-
-inline bool Required::opponent(const short &row, const short &col){
-	return !((gameMap[row][col] == PLAYER_A || gameMap[row][col] == PLAYER_B) && gameMap[row][col] != WHOAMI);
-}
-
-inline bool Required::outOfRange(const short &row, const short &col){
-	return 0 <= row && row < gameMap.height() && 0 <= col && col < gameMap.width();
-}
-
 void Bot::benchmark(){
 	unsigned short row, col;
 	do{
@@ -171,7 +144,6 @@ void Bot::benchmark(){
 	double average = 0;
 	for(short i=0 ; i < 3 ; ++i){
 		auto start_clock = clock();
-		Required().all(row, col);
 		Complex().all(row, col, make_pair(0, 0), 1);
 		average += (clock() - start_clock) * 1.0 / CLOCKS_PER_SEC;
 	}
@@ -205,7 +177,7 @@ int Bot::alpha_beta(const pair<short, short>&playerAt, const unsigned short dept
 		}
 		cerr << " to (" << movedPlayerAt.first << ',' << movedPlayerAt.second << ")\n";
 #endif
-		if(!Required().all(movedPlayerAt.first, movedPlayerAt.second)){
+		if(!Required(movedPlayerAt.first, movedPlayerAt.second)){
 #ifdef DBG
 			cerr << "[Bot::alpha_beta]Required not passed\n";
 #endif 
@@ -335,7 +307,7 @@ const char* Bot::decide() const{
 #ifdef DBG
 		cerr << "[Bot::decide]player moved to (" << movedPlayerAt.first << ',' << movedPlayerAt.second << ")\n";
 #endif
-		if(!Required().all(movedPlayerAt.first, movedPlayerAt.second)){
+		if(!Required(movedPlayerAt.first, movedPlayerAt.second)){
 #ifdef DBG
 			cerr << "[Bot::decide]Required not passed";
 #endif
@@ -375,4 +347,11 @@ const char* Bot::decide() const{
 		}
 	}
 	return _DIR_STR[maxDirIdx];
+}
+
+inline bool Required(const short &row, const short &col){
+	return 0 <= row && row < gameMap.height() &&
+		0 <= col && col < gameMap.width() &&
+		gameMap[row][col] != WALL &&
+		!((gameMap[row][col] == PLAYER_A || gameMap[row][col] == PLAYER_B) && gameMap[row][col] != WHOAMI);
 }
