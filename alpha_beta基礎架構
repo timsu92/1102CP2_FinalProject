@@ -1,0 +1,49 @@
+enum 方向
+
+func decide(){
+	
+}
+	
+# 回傳評分(包含分數變化)
+func alpha_beta(player location, depth=1, isMax, parentRateAndScores, prunePivot=isMax?inf:-inf){
+	if(depth == maxDepth){
+		return 0;
+	}
+	int diffRate = isMax ? -inf : inf;
+	if(isMax){ # 如果有大於pivot的，其他方向不必展開
+		for(4 ways, when diffRate<prunePivot){
+			if(必要判斷失敗){
+				continue;
+			}
+			const enum MapObjs thisObj = 這格地圖上的物件;
+			var thisRateAndScores = 複雜判斷(parentRateAndScores.scores, depth+1); # 可能會遇到自己,偶數步伐
+			if(thisRateAndScores.rate == -inf){
+				continue;
+			}else if(thisRateAndScores.rate == inf){
+				return inf;
+			}else{
+				# if(depth >= maxDepth - 1){
+					# return max(
+						# diffRate,
+						# thisRateAndScores.rate + parentRateAndScores.rate;
+					# )
+				# }
+				刪除這格地圖上的物件;
+				# thisRateAndScores += parentRateAndScores;
+				var nextRate = alpha_beta(player moved location, depth +1, false, thisRateAndScores + parentRateAndScores, diffRate);
+				還原這格地圖上原始物件;
+				if(nextRate == -inf){
+					continue;
+				}else if(nextRate == inf){
+					return inf;
+				}else{
+					diffRate = max(
+						diffRate,
+						thisRateAndScores.rate + nextRate
+					);
+				}
+			}
+		}
+	}
+	return diffRate;
+}
