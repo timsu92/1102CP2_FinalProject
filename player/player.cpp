@@ -99,7 +99,6 @@ public:
 			}else{
 				ret += next;
 			}
-
 		}
 		return ret;
 	}
@@ -238,7 +237,12 @@ double Bot::alpha_beta(const pair<short, short>&playerAt, const unsigned short d
 #ifdef DBG
 		cerr << "[Bot::alpha_beta]call alpha_beta by playerAt=(" << movedPlayerAt.first << ',' << movedPlayerAt.second << "), depth=" << depth+1 << ", " << (isMax ? "min" : "max") << ", RnS={" << (parentRnS + thisRnS).r << ',' << (parentRnS + thisRnS).sa << ',' << (parentRnS + thisRnS).sb << ", prunePivot=" << diffRate << endl;
 #endif
-		double nextRate = alpha_beta(movedPlayerAt, depth+1, !isMax, parentRnS + thisRnS, diffRate) * 0.8;
+		double nextRate;
+		if(thisObj == MINE){
+			nextRate = alpha_beta(movedPlayerAt, depth+1, !isMax, parentRnS + thisRnS, diffRate) * 0.4096;
+		}else{
+			nextRate = alpha_beta(movedPlayerAt, depth+1, !isMax, parentRnS + thisRnS, diffRate) * 0.8;
+		}
 #ifdef DBG
 		cerr << "[Bot::alpha_beta]back to playerAt (" << movedPlayerAt.first << ',' << movedPlayerAt.second << "), depth=" << depth << endl <<
 			"[Bot::alpha_beta]nextRate=" << nextRate << endl;
@@ -287,9 +291,6 @@ struct RateAndScores Complex::collectObj(const pair<short, short> &playerAt, con
 	struct RateAndScores ret{0, scores.first, scores.second};
 	int &myScore = WHOAMI == PLAYER_A ? ret.sa : ret.sb;
 	switch(gameMap[movedPlayerAt.first][movedPlayerAt.second]){
-		case MINE:
-			ret.r = -2;
-			break;
 		case MUSHROOM:
 			ret.r = 1;
 			++myScore;
@@ -306,6 +307,7 @@ struct RateAndScores Complex::collectObj(const pair<short, short> &playerAt, con
 			ret.r = -(int)(myScore/2);
 			myScore /= 2;
 			break;
+		case MINE:
 		case PATH:
 		case PLAYER_A:
 		case PLAYER_B:
