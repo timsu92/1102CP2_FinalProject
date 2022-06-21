@@ -65,7 +65,7 @@ class Random {
         return (rand() % range) + from;
     }
     void setRandom() {
-        srand(time(NULL));
+        srand(48763);
     }
 };
 
