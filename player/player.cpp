@@ -83,7 +83,7 @@ inline bool Required(const short &row, const short &col);
 class Complex{
 public:
 	static struct RateAndScores collectObj(const pair<short, short> &playerAt,const pair<short, short> &movedPlayerAt, const pair<int, int> &scores, const unsigned short depth);
-	static struct RateAndScores goFar(const pair<short, short> &playerAt, const pair<short, short> &movedPlayerAt, const pair<int, int> &scores, const unsigned short depth);
+	static struct RateAndScores corner2Center(const pair<short, short> &playerAt, const pair<short, short> &movedPlayerAt, const pair<int, int> &scores, const unsigned short depth);
 
 	RateAndScores all(const pair<short, short> &playerAt, const pair<short, short> &movedPlayerAt, const pair<int, int>&scores, const unsigned short depth) const{
 		RateAndScores ret = {0, scores.first, scores.second};
@@ -105,7 +105,7 @@ public:
 	}
 private:
 	struct RateAndScores (*_methods[2])(const pair<short, short>&, const pair<short, short>&, const pair<int, int>&, const unsigned short) = {
-		collectObj, goFar
+		collectObj, corner2Center
 	};
 };
 
@@ -378,4 +378,26 @@ inline bool Required(const short &row, const short &col){
 		0 <= col && col < gameMap.width() &&
 		gameMap[row][col] != WALL &&
 		!((gameMap[row][col] == PLAYER_A || gameMap[row][col] == PLAYER_B) && gameMap[row][col] != WHOAMI);
+}
+
+struct RateAndScores Complex::corner2Center(const pair<short, short> &playerAt, const pair<short, short> &movedPlayerAt, const pair<int, int> &scores, const unsigned short depth){
+	struct RateAndScores nearRnS = {0.1, scores.first, scores.second}, farRnS = {0, scores.first, scores.second};
+	if(gameMap.myLocation.first < gameMap.height() * 0.2 || gameMap.myLocation.first > gameMap.height() * 0.7){
+		if(pow(movedPlayerAt.first - gameMap.height()/2, 2) + pow(movedPlayerAt.second - gameMap.width()/2, 2) <
+				pow(gameMap.myLocation.first - gameMap.height()/2, 2) + pow(gameMap.myLocation.second - gameMap.width()/2, 2)){
+			return nearRnS;
+		}else{
+			return farRnS;
+		}
+	}else{
+		if(gameMap.myLocation.second < gameMap.width() * 0.2 || gameMap.myLocation.second > gameMap.width() * 0.7){
+			if(pow(movedPlayerAt.first - gameMap.height()/2, 2) + pow(movedPlayerAt.second - gameMap.width()/2, 2) <
+					pow(gameMap.myLocation.first - gameMap.height()/2, 2) + pow(gameMap.myLocation.second - gameMap.width()/2, 2)){
+				return nearRnS;
+			}else{
+				return farRnS;
+			}
+		}
+	}
+	return farRnS;
 }
