@@ -16,7 +16,7 @@ clean:
 test:
 	@mkdir tmp
 	@cp player/player.cpp tmp/player.cpp
-	@g++ tmp/player.cpp -o tmp/player
+	@g++ tmp/player.cpp -Wall -o tmp/player
 	@echo "test player with sampleA.in"
 	@timeout 1 tmp/player < sample/sampleA.in
 	@echo "test player with sampleB.in"
@@ -31,7 +31,7 @@ judge1:
 	@echo "player be A, bot1 be B"
 	@cp player/player.cpp tmp/A.cpp
 	@cp bot/bot1.cpp tmp/B.cpp
-	@g++ tmp/A.cpp -o tmp/A
+	@g++ tmp/A.cpp -Wall -o tmp/A
 	@g++ -std=c++11 tmp/B.cpp -o tmp/B
 	@cd tmp && python3 judge.py
 	@cp tmp/move.log move_player_be_A.log
@@ -40,7 +40,7 @@ judge1:
 	@cp player/player.cpp tmp/B.cpp
 	@cp bot/bot1.cpp tmp/A.cpp
 	@g++ -std=c++11 tmp/A.cpp -o tmp/A
-	@g++ tmp/B.cpp -o tmp/B
+	@g++ tmp/B.cpp -Wall -o tmp/B
 	@cd tmp && python3 judge.py
 	@cp tmp/move.log move_player_be_B.log
 	@rm -rf tmp
@@ -52,7 +52,7 @@ judge2:
 	@echo "player be A, bot2 be B"
 	@cp player/player.cpp tmp/A.cpp
 	@cp bot/bot2.cpp tmp/B.cpp
-	@g++ tmp/A.cpp -o tmp/A
+	@g++ tmp/A.cpp -Wall -o tmp/A
 	@g++ -std=c++11 tmp/B.cpp -o tmp/B
 	@cd tmp && python3 judge.py
 	@cp tmp/move.log move_player_be_A.log
@@ -61,7 +61,7 @@ judge2:
 	@cp player/player.cpp tmp/B.cpp
 	@cp bot/bot2.cpp tmp/A.cpp
 	@g++ -std=c++11 tmp/A.cpp -o tmp/A
-	@g++ tmp/B.cpp -o tmp/B
+	@g++ tmp/B.cpp -Wall -o tmp/B
 	@cd tmp && python3 judge.py
 	@cp tmp/move.log move_player_be_B.log
 	@rm -rf tmp
@@ -73,7 +73,7 @@ judge3:
 	@echo "player be A, bot3 be B"
 	@cp player/player.cpp tmp/A.cpp
 	@cp bot/bot3.cpp tmp/B.cpp
-	@g++ tmp/A.cpp -o tmp/A
+	@g++ tmp/A.cpp -Wall -o tmp/A
 	@g++ -std=c++11 -w tmp/B.cpp -o tmp/B
 	@cd tmp && python3 judge.py
 	@cp tmp/move.log move_player_be_A.log
@@ -82,7 +82,7 @@ judge3:
 	@cp player/player.cpp tmp/B.cpp
 	@cp bot/bot3.cpp tmp/A.cpp
 	@g++ -std=c++11 -w tmp/A.cpp -o tmp/A
-	@g++ tmp/B.cpp -o tmp/B
+	@g++ tmp/B.cpp -Wall -o tmp/B
 	@cd tmp && python3 judge.py
 	@cp tmp/move.log move_player_be_B.log
 	@rm -rf tmp
