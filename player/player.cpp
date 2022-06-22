@@ -1,8 +1,6 @@
 #include<bits/stdc++.h>
 
 using namespace std;
-// #define DBG
-// #define DBGTIME
 
 // 4的指數
 const vector<unsigned long> FOUR{4, 16, 64, 256, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304, 16777216, 67108864, 268435456, 1073741824, 4294967296, 17179869184, 68719476736, 274877906944, 1099511627776, 4398046511104, 17592186044416, 70368744177664, 281474976710656, 1125899906842624, 4503599627370496, 18014398509481984, 72057594037927936, 288230376151711744, 1152921504606846976, 4611686018427387904};
@@ -83,7 +81,7 @@ inline bool Required(const short &row, const short &col);
 class Complex{
 public:
 	static struct RateAndScores collectObj(const pair<short, short> &playerAt,const pair<short, short> &movedPlayerAt, const pair<int, int> &scores, const unsigned short depth);
-	static struct RateAndScores corner2Center(const pair<short, short> &playerAt, const pair<short, short> &movedPlayerAt, const pair<int, int> &scores, const unsigned short depth);
+	// static struct RateAndScores corner2Center(const pair<short, short> &playerAt, const pair<short, short> &movedPlayerAt, const pair<int, int> &scores, const unsigned short depth);
 
 	RateAndScores all(const pair<short, short> &playerAt, const pair<short, short> &movedPlayerAt, const pair<int, int>&scores, const unsigned short depth) const{
 		RateAndScores ret = {0, scores.first, scores.second};
@@ -103,8 +101,8 @@ public:
 		return ret;
 	}
 private:
-	struct RateAndScores (*_methods[2])(const pair<short, short>&, const pair<short, short>&, const pair<int, int>&, const unsigned short) = {
-		collectObj, corner2Center
+	struct RateAndScores (*_methods[1])(const pair<short, short>&, const pair<short, short>&, const pair<int, int>&, const unsigned short) = {
+		collectObj 
 	};
 };
 
@@ -114,12 +112,12 @@ public:
 		benchmark();
 	}
 
-	const char* decide() const;
-	double alpha_beta(const pair<short, short>&playerAt, const unsigned short depth, const bool isMax, const RateAndScores &parentRnS, double prunePivot) const;
+	double dfs(const pair<short, short> &playerAt, const unsigned short depth, const RateAndScores &parentRnS) const;
+	const string decide() const;
 	void benchmark();
 private:
-	unsigned short _maxDepth = 1; // changed later in benchmark
-	const char* _DIR_STR[4] = {"UP\n", "DOWN\n", "LEFT\n", "RIGHT\n"};
+	unsigned short _maxDepth = 1; // changed later in benchmark	
+	const string _DIR_STR[4] = {"UP\n", "DOWN\n", "LEFT\n", "RIGHT\n"};
 };
 
 Map gameMap;
@@ -157,7 +155,7 @@ void Bot::benchmark(){
 	double average = 0;
 	for(short i=0 ; i < 3 ; ++i){
 		auto start_clock = clock();
-		alpha_beta(make_pair(row, col), 0, true, RateAndScores{0, SCORE.first, SCORE.second}, DBL_MAX) * 0.8;
+		dfs(make_pair(row, col), 0, RateAndScores{0, SCORE.first, SCORE.second}) * 0.8;
 		average += (clock() - start_clock) * 1.0 / CLOCKS_PER_SEC;
 	}
 	average /= 3;
@@ -182,109 +180,6 @@ void Bot::benchmark(){
 	cerr << "[Bot::benchmark]execution costs " << average << "s, which is " << 0.9/average << " executions\n";
 	cerr << "[Bot::benchmark]running up to " << _maxDepth << " steps (" << dirsOK << " directions)\n";
 #endif
-}
-
-double Bot::alpha_beta(const pair<short, short>&playerAt, const unsigned short depth, const bool isMax, const RateAndScores &parentRnS, double prunePivot) const{
-	if(depth >= _maxDepth){
-#ifdef DBG
-		cerr << "[Bot::alpha_beta]_maxDepth reached\n";
-#endif 
-		return 0;
-	}
-	double diffRate = isMax ? -DBL_MAX : DBL_MAX;
-	for(short dir = 0 ; dir < 4 && (isMax ? diffRate < prunePivot : diffRate > prunePivot) ; ++dir){
-		const pair<short, short>movedPlayerAt = make_pair(playerAt.first + DROW[dir], playerAt.second + DCOL[dir]);
-#ifdef DBG
-		cerr << "[Bot::alpha_beta]player moved ";
-		switch((enum Direction)dir){
-			case UP: cerr << "up"; break;
-			case DOWN: cerr << "down"; break;
-			case LEFT: cerr << "left"; break;
-			case RIGHT: cerr << "right"; break;
-		}
-		cerr << " to (" << movedPlayerAt.first << ',' << movedPlayerAt.second << ")\n";
-#endif
-		if(!Required(movedPlayerAt.first, movedPlayerAt.second)){
-#ifdef DBG
-			cerr << "[Bot::alpha_beta]Required not passed\n";
-#endif 
-			continue;
-		}
-		const enum MapObjs thisObj = gameMap[movedPlayerAt.first][movedPlayerAt.second];
-#ifdef DBG
-		cerr << "[Bot::alpha_beta]Required passed\n"
-			"[Bot::alpha_beta]thisObj is " << (char)thisObj << endl;
-#endif
-		RateAndScores thisRnS = Complex().all(playerAt, movedPlayerAt, make_pair(parentRnS.sa, parentRnS.sb), depth+1);
-#ifdef DBG
-		cerr << "[Bot::alpha_beta]thisRnS(Complex)={" << thisRnS.r << ',' << thisRnS.sa << ',' << thisRnS.sb << "}\n";
-#endif
-		if(isMax){
-			if(thisRnS.r == -DBL_MAX){
-				continue;
-			}else if(thisRnS.r == DBL_MAX){
-				return DBL_MAX;
-			}
-		}else{
-			if(thisRnS.r == DBL_MAX){
-				continue;
-			}else if(thisRnS.r == -DBL_MAX){
-				return -DBL_MAX;
-			}
-		}
-		// 刪除這格地圖上的物件
-		gameMap[movedPlayerAt.first][movedPlayerAt.second] = PATH;
-#ifdef DBG
-		cerr << "[Bot::alpha_beta]call alpha_beta by playerAt=(" << movedPlayerAt.first << ',' << movedPlayerAt.second << "), depth=" << depth+1 << ", " << (isMax ? "min" : "max") << ", RnS={" << (parentRnS + thisRnS).r << ',' << (parentRnS + thisRnS).sa << ',' << (parentRnS + thisRnS).sb << ", prunePivot=" << diffRate << endl;
-#endif
-		double nextRate;
-		if(thisObj == MINE){
-			nextRate = alpha_beta(movedPlayerAt, depth+1, !isMax, parentRnS + thisRnS, diffRate) * 0.4096;
-		}else{
-			nextRate = alpha_beta(movedPlayerAt, depth+1, !isMax, parentRnS + thisRnS, diffRate) * 0.8;
-		}
-#ifdef DBG
-		cerr << "[Bot::alpha_beta]back to playerAt (" << movedPlayerAt.first << ',' << movedPlayerAt.second << "), depth=" << depth << endl <<
-			"[Bot::alpha_beta]nextRate=" << nextRate << endl;
-#endif
-		// 還原這格地圖上的物件
-		gameMap[movedPlayerAt.first][movedPlayerAt.second] = thisObj;
-		if(isMax){
-			if(nextRate == -DBL_MAX){
-				continue;
-			}else if(nextRate == DBL_MAX){
-				return DBL_MAX;
-			}else{
-#ifdef DBG
-				if(thisRnS.r + nextRate > diffRate){
-					cerr << "[Bot::alpha_beta]diffRate changed to " << thisRnS.r + nextRate << endl;
-				}else{
-					cerr << "[Bot::alpha_beta]diffRate remain " << diffRate << endl;
-				}
-#endif
-				diffRate = max(diffRate, thisRnS.r + nextRate);
-			}
-		}else{
-			if(nextRate == DBL_MAX){
-				continue;
-			}else if(nextRate == -DBL_MAX){
-				return -DBL_MAX;
-			}else{
-#ifdef DBG
-				if(thisRnS.r + nextRate < diffRate){
-					cerr << "[Bot::alpha_beta]diffRate changed to " << thisRnS.r + nextRate << endl;
-				}else{
-					cerr << "[Bot::alpha_beta]diffRate remain " << diffRate << endl;
-				}
-#endif
-				diffRate = min(diffRate, thisRnS.r + nextRate);
-			}
-		}
-	}
-#ifdef DBG
-	cerr << "[Bot::alpha_beta]diffRate return as " << diffRate << endl;
-#endif
-	return diffRate;
 }
 
 struct RateAndScores Complex::collectObj(const pair<short, short> &playerAt, const pair<short, short> &movedPlayerAt, const pair<int, int> &scores, const unsigned short depth){
@@ -317,89 +212,9 @@ struct RateAndScores Complex::collectObj(const pair<short, short> &playerAt, con
 	return ret;
 }
 
-const char* Bot::decide() const{
-	if(_maxDepth == 0){ // 無路可走
-		return "UP\n";
-	}
-	short maxDirIdx = 0;
-	double maxRate = -DBL_MAX; // diffRate
-	for(short dir = 0 ; dir < 4 ; ++dir){
-		const pair<short, short> movedPlayerAt = make_pair(gameMap.myLocation.first + DROW[dir], gameMap.myLocation.second + DCOL[dir]);
-#ifdef DBG
-		cerr << "[Bot::decide]player moved to (" << movedPlayerAt.first << ',' << movedPlayerAt.second << ")\n";
-#endif
-		if(!Required(movedPlayerAt.first, movedPlayerAt.second)){
-#ifdef DBG
-			cerr << "[Bot::decide]Required not passed";
-#endif
-			continue;
-		}
-		const enum MapObjs thisObj = gameMap[movedPlayerAt.first][movedPlayerAt.second];
-#ifdef DBG
-		cerr << "[Bot::decide]Required passed\n"
-			"[Bot::decide]thisObj is " << (char)thisObj << endl;
-#endif
-		double thisRate = Complex().all(gameMap.myLocation, movedPlayerAt, SCORE, 1).r;
-#ifdef DBG
-		cerr << "[Bot::decide]thisRate=" << thisRate << endl;
-#endif
-		if(thisRate == -DBL_MAX){continue;}
-		else if(thisRate == DBL_MAX){
-			maxDirIdx = dir;
-			break;
-		}
-		gameMap[movedPlayerAt.first][movedPlayerAt.second] = PATH;
-#ifdef DBG
-		cerr << "[Bot::decide]call alpha_beta by playerAt (" << movedPlayerAt.first << ',' << movedPlayerAt.second << "), depth=1, min, RnS={0," << SCORE.first << ',' << SCORE.second << "}, prunePivot=" << maxRate << endl;
-#endif
-		double nextRate = alpha_beta(movedPlayerAt, 1, false, RateAndScores{0, SCORE.first, SCORE.second}, maxRate);
-		gameMap[movedPlayerAt.first][movedPlayerAt.second] = thisObj;
-#ifdef DBG
-		cerr << "[Bot::decide]nextRate=" << nextRate << endl;
-#endif
-		if(nextRate == -DBL_MAX){continue;}
-		else if(nextRate == DBL_MAX){
-			maxDirIdx = dir;
-			break;
-		}
-		else if(thisRate + nextRate > maxRate){
-			maxRate = thisRate + nextRate;
-			maxDirIdx = dir;
-		}else if(thisRate + nextRate == maxRate){
-			if(rand() % 2 == 0){
-				maxRate = thisRate + nextRate;
-				maxDirIdx = dir;
-			}
-		}
-	}
-	return _DIR_STR[maxDirIdx];
-}
-
 inline bool Required(const short &row, const short &col){
 	return 0 <= row && row < gameMap.height() &&
 		0 <= col && col < gameMap.width() &&
 		gameMap[row][col] != WALL &&
 		!((gameMap[row][col] == PLAYER_A || gameMap[row][col] == PLAYER_B) && gameMap[row][col] != WHOAMI);
-}
-
-struct RateAndScores Complex::corner2Center(const pair<short, short> &playerAt, const pair<short, short> &movedPlayerAt, const pair<int, int> &scores, const unsigned short depth){
-	struct RateAndScores nearRnS = {0.1, scores.first, scores.second}, farRnS = {0, scores.first, scores.second};
-	if(gameMap.myLocation.first < gameMap.height() * 0.2 || gameMap.myLocation.first > gameMap.height() * 0.7){
-		if(pow(movedPlayerAt.first - gameMap.height()/2, 2) + pow(movedPlayerAt.second - gameMap.width()/2, 2) <
-				pow(gameMap.myLocation.first - gameMap.height()/2, 2) + pow(gameMap.myLocation.second - gameMap.width()/2, 2)){
-			return nearRnS;
-		}else{
-			return farRnS;
-		}
-	}else{
-		if(gameMap.myLocation.second < gameMap.width() * 0.2 || gameMap.myLocation.second > gameMap.width() * 0.7){
-			if(pow(movedPlayerAt.first - gameMap.height()/2, 2) + pow(movedPlayerAt.second - gameMap.width()/2, 2) <
-					pow(gameMap.myLocation.first - gameMap.height()/2, 2) + pow(gameMap.myLocation.second - gameMap.width()/2, 2)){
-				return nearRnS;
-			}else{
-				return farRnS;
-			}
-		}
-	}
-	return farRnS;
 }
