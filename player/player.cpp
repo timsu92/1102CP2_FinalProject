@@ -175,7 +175,7 @@ void Bot::benchmark(){
 #endif
 		return;
 	}else{
-		const auto idx4 = lower_bound(FOUR.begin(), FOUR.end(), 0.9 / average * 4 / dirsOK);
+		const auto idx4 = lower_bound(FOUR.begin(), FOUR.end(), 0.92 / average * 4 / dirsOK);
 		_maxDepth = min(static_cast<unsigned short>((idx4 - FOUR.begin()+1)), static_cast<unsigned short>(1001 - ROUND)); // 加一是因為第一層只有當前位置，沒有計算
 	}
 #ifdef DBGTIME
