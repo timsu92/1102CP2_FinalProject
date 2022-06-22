@@ -65,6 +65,10 @@ public:
 		return _data.at(row);
 	}
 
+	inline enum MapObjs& operator[](const pair<short, short> location){
+		return _data[location.first][location.second];
+	}
+
 	unsigned short height(){return _height;}
 	unsigned short width(){return _width;}
 	pair<pair<short, short>, pair<short, short>> playersAt;
