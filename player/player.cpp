@@ -28,9 +28,9 @@ struct RateAndScores{
 };
 
 enum MapObjs{
-	MINE = 'b',	//3 round
-	MUSHROOM = 'm',	//+1
-	PMUSHROOM = 'n', //-1
+	MINE = 'b',	// 3 round
+	MUSHROOM = 'm',	// +1
+	PMUSHROOM = 'n', // -1
 	STAR = 's', // *2
 	PSTAR = 't', // /2
 	WALL = 'x',
@@ -65,7 +65,7 @@ public:
 		return _data.at(row);
 	}
 
-	inline enum MapObjs& operator[](const pair<short, short> location){
+	inline enum MapObjs& operator[](const pair<short, short> &location){
 		return _data[location.first][location.second];
 	}
 
@@ -154,19 +154,17 @@ int main(){
 }
 
 void Bot::benchmark(){
-	const unsigned short &row = WHOAMI == PLAYER_A ? gameMap.playersAt.first.first : gameMap.playersAt.second.first,
-		  &col = WHOAMI == PLAYER_A ? gameMap.playersAt.first.second : gameMap.playersAt.second.second;
 	double average = 0;
 	for(short i=0 ; i < 3 ; ++i){
 		auto start_clock = clock();
-		dfs(make_pair(row, col), 0, RateAndScores{0, SCORE.first, SCORE.second}) * 0.8;
-		average += (clock() - start_clock) * 1.0 / CLOCKS_PER_SEC;
+		dfs(gameMap.myLocation, 0, RateAndScores{0, SCORE.first, SCORE.second}) * 0.8;
+		average += (clock() - start_clock);
 	}
-	average /= 3;
+	average /= 3 * CLOCKS_PER_SEC;
 
 	short dirsOK = 4;
 	for(short dir=0 ; dir < 4 ; ++dir){
-		if(!Required(row + DROW[dir], col + DCOL[dir])){
+		if(!Required(gameMap.myLocation.first + DROW[dir], gameMap.myLocation.second + DCOL[dir])){
 			--dirsOK;
 		}
 	}
@@ -189,7 +187,7 @@ void Bot::benchmark(){
 struct RateAndScores Complex::collectObj(const pair<short, short> &playerAt, const pair<short, short> &movedPlayerAt, const pair<int, int> &scores, const unsigned short depth){
 	struct RateAndScores ret{0, scores.first, scores.second};
 	int &myScore = WHOAMI == PLAYER_A ? ret.sa : ret.sb;
-	switch(gameMap[movedPlayerAt.first][movedPlayerAt.second]){
+	switch(gameMap[movedPlayerAt]){
 		case MUSHROOM:
 			ret.r = 1;
 			++myScore;
@@ -260,3 +258,64 @@ double Bot::dfs(const pair<short, short> &playerAt, const unsigned short depth, 
 	}
 	return diffRate;
 }
+
+const string Bot::decide() const{
+	if(_maxDepth == 0){ // 無路可走
+		return "UP\n";
+	}
+	short maxDirIdx = 0;
+	double maxRate = -DBL_MAX; // diffRate
+	for(short dir=0 ; dir < 4 ; ++dir){
+		const pair<short, short> movedPlayerAt = make_pair(gameMap.myLocation.first + DROW[dir], gameMap.myLocation.second + DCOL[dir]);
+		if(!Required(movedPlayerAt.first, movedPlayerAt.second)){
+			continue;
+		}
+		const enum MapObjs thisObj = gameMap[movedPlayerAt];
+		double thisRate = Complex().all(gameMap.myLocation, movedPlayerAt, SCORE, 1).r;
+		if(thisRate == -DBL_MAX){continue;}
+		else if(thisRate == DBL_MAX){
+			maxDirIdx = dir;
+			break;
+		}
+		gameMap[movedPlayerAt] = PATH;
+		double nextRate = dfs(movedPlayerAt, 1, RateAndScores{0, SCORE.first, SCORE.second});
+		gameMap[movedPlayerAt] = thisObj;
+		if(nextRate == -DBL_MAX){continue;}
+		else if(nextRate == DBL_MAX){
+			maxDirIdx = dir;
+			break;
+		}
+		else if(thisRate + nextRate > maxRate){
+			maxRate = thisRate + nextRate;
+			maxDirIdx = dir;
+		}else if(thisRate + nextRate == maxRate){
+			if(rand() % 2 == 0){
+				maxRate = thisRate + nextRate;
+				maxDirIdx = dir;
+			}
+		}
+	}
+	return _DIR_STR[maxDirIdx];
+}
+
+// struct RateAndScores Complex::corner2Center(const pair<short, short> &playerAt, const pair<short, short> &movedPlayerAt, const pair<int, int> &scores, const unsigned short depth){
+	// struct RateAndScores nearRnS = {0.1, scores.first, scores.second}, farRnS = {0, scores.first, scores.second};
+	// if(gameMap.myLocation.first < gameMap.height() * 0.2 || gameMap.myLocation.first > gameMap.height() * 0.8){
+		// if(pow(movedPlayerAt.first - gameMap.height()/2, 2) + pow(movedPlayerAt.second - gameMap.width()/2, 2) <
+				// pow(gameMap.myLocation.first - gameMap.height()/2, 2) + pow(gameMap.myLocation.second - gameMap.width()/2, 2)){
+			// return nearRnS;
+		// }else{
+			// return farRnS;
+		// }
+	// }else{
+		// if(gameMap.myLocation.second < gameMap.width() * 0.2 || gameMap.myLocation.second > gameMap.width() * 0.8){
+			// if(pow(movedPlayerAt.first - gameMap.height()/2, 2) + pow(movedPlayerAt.second - gameMap.width()/2, 2) <
+					// pow(gameMap.myLocation.first - gameMap.height()/2, 2) + pow(gameMap.myLocation.second - gameMap.width()/2, 2)){
+				// return nearRnS;
+			// }else{
+				// return farRnS;
+			// }
+		// }
+	// }
+	// return farRnS;
+// }
