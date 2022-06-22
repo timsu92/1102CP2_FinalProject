@@ -1,6 +1,7 @@
 #include<bits/stdc++.h>
 
 using namespace std;
+// #define DBGTIME
 
 // 4的指數
 const vector<unsigned long> FOUR{4, 16, 64, 256, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304, 16777216, 67108864, 268435456, 1073741824, 4294967296, 17179869184, 68719476736, 274877906944, 1099511627776, 4398046511104, 17592186044416, 70368744177664, 281474976710656, 1125899906842624, 4503599627370496, 18014398509481984, 72057594037927936, 288230376151711744, 1152921504606846976, 4611686018427387904};
@@ -164,6 +165,9 @@ void Bot::benchmark(){
 		average += (clock() - start_clock);
 	}
 	average /= 3 * CLOCKS_PER_SEC;
+	if(average == 0){
+		average = 3.333e-7;
+	}
 
 	short dirsOK = 4;
 	for(short dir=0 ; dir < 4 ; ++dir){
@@ -178,11 +182,11 @@ void Bot::benchmark(){
 #endif
 		return;
 	}else{
-		const auto idx4 = lower_bound(FOUR.begin(), FOUR.end(), (0.92 - ((double)clock() / CLOCKS_PER_SEC)) / average * 4 / dirsOK);
+		const auto idx4 = lower_bound(FOUR.begin(), FOUR.end(), (0.93 - ((double)clock() / CLOCKS_PER_SEC)) / average * 4 / dirsOK);
 		_maxDepth = min(static_cast<unsigned short>((idx4 - FOUR.begin()+1)), static_cast<unsigned short>(1001 - ROUND)); // 加一是因為第一層只有當前位置，沒有計算
 	}
 #ifdef DBGTIME
-	cerr << "[Bot::benchmark]execution costs " << average << "s, which is " << 0.9/average << " executions\n";
+	cerr << "[Bot::benchmark]execution costs " << average << "s, which is " << (0.9 - ((double)clock() / CLOCKS_PER_SEC))/average << " executions\n";
 	cerr << "[Bot::benchmark]running up to " << _maxDepth << " steps (" << dirsOK << " directions)\n";
 #endif
 }
