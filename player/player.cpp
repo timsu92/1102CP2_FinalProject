@@ -222,3 +222,41 @@ inline bool Required(const short &row, const short &col){
 		gameMap[row][col] != WALL &&
 		!((gameMap[row][col] == PLAYER_A || gameMap[row][col] == PLAYER_B) && gameMap[row][col] != WHOAMI);
 }
+
+double Bot::dfs(const pair<short, short> &playerAt, const unsigned short depth, const RateAndScores &parentRnS) const{
+	if(depth >= _maxDepth){
+		return 0;
+	}
+	double diffRate = -DBL_MAX;
+	for(short dir = 0 ; dir < 4 ; ++dir){
+		const pair<short, short>movedPlayerAt = make_pair(playerAt.first + DROW[dir], playerAt.second + DCOL[dir]);
+		if(!Required(movedPlayerAt.first, movedPlayerAt.second)){
+			continue;
+		}
+		const enum MapObjs thisObj = gameMap[movedPlayerAt];
+		RateAndScores thisRnS = Complex().all(playerAt, movedPlayerAt, make_pair(parentRnS.sa, parentRnS.sb), depth+1);
+		if(thisRnS.r == -DBL_MAX){
+			continue;
+		}else if(thisRnS.r == DBL_MAX){
+			return DBL_MAX;
+		}
+		// 刪除這格地圖上的物件
+		gameMap[movedPlayerAt] = PATH;
+		double nextRate;
+		if(thisObj == MINE){
+			nextRate = dfs(movedPlayerAt, depth+1, parentRnS + thisRnS) * 0.4096;
+		}else{
+			nextRate = dfs(movedPlayerAt, depth+1, parentRnS + thisRnS) * 0.8;
+		}
+		// 還原這格地圖上的物件
+		gameMap[movedPlayerAt] = thisObj;
+		if(nextRate == -DBL_MAX){
+			continue;
+		}else if(nextRate == DBL_MAX){
+			return DBL_MAX;
+		}else{
+			diffRate = max(diffRate, thisRnS.r + nextRate);
+		}
+	}
+	return diffRate;
+}
