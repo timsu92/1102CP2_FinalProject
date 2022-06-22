@@ -113,6 +113,7 @@ private:
 class Bot{
 public:
 	Bot(){
+		_computePlayerHalfDistance();
 		benchmark();
 	}
 
@@ -122,6 +123,8 @@ public:
 private:
 	unsigned short _maxDepth = 1; // changed later in benchmark	
 	const string _DIR_STR[4] = {"UP\n", "DOWN\n", "LEFT\n", "RIGHT\n"};
+	unsigned short _playerHalfDistance;
+	void _computePlayerHalfDistance();
 };
 
 Map gameMap;
@@ -175,7 +178,7 @@ void Bot::benchmark(){
 #endif
 		return;
 	}else{
-		const auto idx4 = lower_bound(FOUR.begin(), FOUR.end(), 0.92 / average * 4 / dirsOK);
+		const auto idx4 = lower_bound(FOUR.begin(), FOUR.end(), (0.92 - ((double)clock() / CLOCKS_PER_SEC)) / average * 4 / dirsOK);
 		_maxDepth = min(static_cast<unsigned short>((idx4 - FOUR.begin()+1)), static_cast<unsigned short>(1001 - ROUND)); // 加一是因為第一層只有當前位置，沒有計算
 	}
 #ifdef DBGTIME
@@ -242,9 +245,17 @@ double Bot::dfs(const pair<short, short> &playerAt, const unsigned short depth, 
 		gameMap[movedPlayerAt] = PATH;
 		double nextRate;
 		if(thisObj == MINE){
-			nextRate = dfs(movedPlayerAt, depth+1, parentRnS + thisRnS) * 0.4096;
+			if(depth+3 < _playerHalfDistance){
+				nextRate = dfs(movedPlayerAt, depth+1, parentRnS + thisRnS);
+			}else{
+				nextRate = dfs(movedPlayerAt, depth+1, parentRnS + thisRnS) * pow(0.8, depth + 4 - _playerHalfDistance);
+			}
 		}else{
-			nextRate = dfs(movedPlayerAt, depth+1, parentRnS + thisRnS) * 0.8;
+			if(depth < _playerHalfDistance){
+				nextRate = dfs(movedPlayerAt, depth+1, parentRnS + thisRnS);
+			}else{
+				nextRate = dfs(movedPlayerAt, depth+1, parentRnS + thisRnS) * 0.8;
+			}
 		}
 		// 還原這格地圖上的物件
 		gameMap[movedPlayerAt] = thisObj;
@@ -319,3 +330,23 @@ const string Bot::decide() const{
 	// }
 	// return farRnS;
 // }
+
+void Bot::_computePlayerHalfDistance(){
+	queue<pair<unsigned short, pair<short, short>>> q({make_pair(0, gameMap.oppoLocation)});
+	while(!q.empty()){
+		for(short dir=0 ; dir < 4 ; ++dir){
+			const pair<short, short> movedPlayerAt = make_pair(q.front().second.first + DROW[dir], q.front().second.second + DCOL[dir]);
+			if(movedPlayerAt.first < 0 || movedPlayerAt.first >= gameMap.height() || movedPlayerAt.second < 0 || movedPlayerAt.second >= gameMap.width() ||
+					gameMap[movedPlayerAt] == WALL){
+				continue;
+			}
+			if(gameMap[movedPlayerAt] == WHOAMI){
+				_playerHalfDistance = (q.front().first + 1) / 2;
+				return;
+			}
+			q.push(make_pair(q.front().first + 1, movedPlayerAt));
+		}
+		q.pop();
+	}
+	_playerHalfDistance = USHRT_MAX;
+}
