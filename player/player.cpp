@@ -40,6 +40,12 @@ enum MapObjs{
 	PATH = '.'
 };
 
+// positives for steps to escape from dead end
+enum MapSegmentStatus{
+	UNKNOWN = 0, 
+	SQUARE = -1
+};
+
 class Map{
 public:
 	void read(){
@@ -82,6 +88,7 @@ private:
 
 /* Return true if the test is passed */
 inline bool Required(const short &row, const short &col);
+inline bool RequiredLite(const pair<short, short> &location);
 
 class Complex{
 public:
@@ -111,11 +118,25 @@ private:
 	};
 };
 
+class MapSegment{
+public:
+	void init();
+	// (status or steps to escape a dead end) and steps for the opponent to be here
+	array<array<pair<enum MapSegmentStatus, unsigned short>, 20>, 20> oppo;
+private:
+	short _deadEndsBeside(const pair<short, short> &location) const;
+	/*@return: steps to exit*/
+	short _markBackDead(const pair<short, short> &location);
+};
+
 class Bot{
 public:
 	Bot(){
-		_computePlayerHalfDistance();
 		benchmark();
+	}
+
+	inline void setPlayerHalfDistance(const unsigned short value){
+		_playerHalfDistance = value;
 	}
 
 	double dfs(const pair<short, short> &playerAt, const unsigned short depth, const RateAndScores &parentRnS) const;
@@ -125,13 +146,13 @@ private:
 	unsigned short _maxDepth = 1; // changed later in benchmark	
 	const string _DIR_STR[4] = {"UP\n", "DOWN\n", "LEFT\n", "RIGHT\n"};
 	unsigned short _playerHalfDistance;
-	void _computePlayerHalfDistance();
 };
 
 Map gameMap;
 enum MapObjs WHOAMI;
 unsigned short ROUND;
 pair<int, int>SCORE;
+MapSegment gameMapSeg;
 
 int main(){
 	ios::sync_with_stdio(false);
@@ -152,6 +173,7 @@ int main(){
 			gameMap.oppoLocation = gameMap.playersAt.first;
 		}
 	}
+	gameMapSeg.init();
 	Bot bot;
 	cout << bot.decide();
 	return 0;
@@ -328,22 +350,55 @@ struct RateAndScores Complex::corner2Center(const pair<short, short> &playerAt, 
 	return farRnS;
 }
 
-void Bot::_computePlayerHalfDistance(){
-	queue<pair<unsigned short, pair<short, short>>> q({make_pair(0, gameMap.oppoLocation)});
+void MapSegment::init(){
+	for(short i=0 ; i < 20 ; ++i){
+		oppo[i].fill(make_pair(MapSegmentStatus::UNKNOWN, 0));
+	}
+	if(this->_deadEndsBeside(gameMap.oppoLocation) >= 3){
+		this->oppo[gameMap.oppoLocation.first][gameMap.oppoLocation.second].second = 0;
+		this->_markBackDead(gameMap.oppoLocation);
+	}else{
+		this->oppo[gameMap.oppoLocation.first][gameMap.oppoLocation.second] = make_pair(MapSegmentStatus::SQUARE, 0);
+	}
+	// steps from oppoLocation, location
+	queue<pair<unsigned short, pair<short, short>>> q({make_pair(static_cast<unsigned short>(0), gameMap.oppoLocation)});
 	while(!q.empty()){
 		for(short dir=0 ; dir < 4 ; ++dir){
 			const pair<short, short> movedPlayerAt = make_pair(q.front().second.first + DROW[dir], q.front().second.second + DCOL[dir]);
-			if(movedPlayerAt.first < 0 || movedPlayerAt.first >= gameMap.height() || movedPlayerAt.second < 0 || movedPlayerAt.second >= gameMap.width() ||
-					gameMap[movedPlayerAt] == WALL){
+			if(!RequiredLite(movedPlayerAt)){
+				if(0 <= movedPlayerAt.first && movedPlayerAt.first < gameMap.height() && 0 <= movedPlayerAt.second && movedPlayerAt.second < gameMap.width()){
+					// originally a WALL
+					this->oppo[movedPlayerAt.first][movedPlayerAt.second] = make_pair(static_cast<MapSegmentStatus>(1), q.front().first + 1);
+				}
 				continue;
 			}
-			if(gameMap[movedPlayerAt] == WHOAMI){
-				_playerHalfDistance = (q.front().first + 1) / 2;
-				return;
+			if(this->oppo[movedPlayerAt.first][movedPlayerAt.second].first != MapSegmentStatus::UNKNOWN){
+				continue;
 			}
-			q.push(make_pair(q.front().first + 1, movedPlayerAt));
+			if(this->_deadEndsBeside(movedPlayerAt) >= 3){
+				this->oppo[movedPlayerAt.first][movedPlayerAt.second].second = q.front().first + 1;
+				this->_markBackDead(movedPlayerAt);
+			}else{
+				this->oppo[movedPlayerAt.first][movedPlayerAt.second] = make_pair(MapSegmentStatus::SQUARE, q.front().first + 1);
+				q.push(make_pair(q.front().first + 1, movedPlayerAt));
+			}
 		}
 		q.pop();
 	}
-	_playerHalfDistance = USHRT_MAX;
+}
+
+short MapSegment::_deadEndsBeside(const pair<short, short> &location) const{
+	short count=0;
+	for(short dir=0 ; dir < 4 ; ++dir){
+		pair<short, short> movedPlayerAt = make_pair(location.first + DROW[dir], location.second + DCOL[dir]);
+		if(!RequiredLite(movedPlayerAt) || this->oppo[movedPlayerAt.first][movedPlayerAt.second].first == MapSegmentStatus::DEAD){
+			++count;
+		}
+	}
+	return count;
+}
+
+inline bool RequiredLite(const pair<short, short> &location){
+	return 0 <= location.first && location.first < gameMap.height() && 0 <= location.second && location.second < gameMap.width() &&
+		gameMap[location] != MapObjs::WALL;
 }
