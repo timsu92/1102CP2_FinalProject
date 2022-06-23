@@ -136,8 +136,8 @@ pair<int, int>SCORE;
 int main(){
 	ios::sync_with_stdio(false);
 	cin.tie(0);
-	srand(time(nullptr));
 	cin >> ROUND;
+	srand(time(nullptr) + ROUND);
 	gameMap.read();
 	cin >> SCORE.first >> SCORE.second;
 	{
@@ -297,7 +297,7 @@ const string Bot::decide() const{
 			maxRate = thisRate + nextRate;
 			maxDirIdx = dir;
 		}else if(thisRate + nextRate == maxRate){
-			if(rand() % 2 == 0){
+			if(rand() % 10 < 5){
 				maxRate = thisRate + nextRate;
 				maxDirIdx = dir;
 			}
