@@ -85,8 +85,8 @@ inline bool Required(const short &row, const short &col);
 
 class Complex{
 public:
-	static struct RateAndScores collectObj(const pair<short, short> &playerAt,const pair<short, short> &movedPlayerAt, const pair<int, int> &scores, const unsigned short depth);
-	// static struct RateAndScores corner2Center(const pair<short, short> &playerAt, const pair<short, short> &movedPlayerAt, const pair<int, int> &scores, const unsigned short depth);
+	static struct RateAndScores collectObj(const pair<short, short> &playerAt, const pair<short, short> &movedPlayerAt, const pair<int, int> &scores, const unsigned short depth);
+	static struct RateAndScores corner2Center(const pair<short, short> &playerAt, const pair<short, short> &movedPlayerAt, const pair<int, int> &scores, const unsigned short depth);
 
 	RateAndScores all(const pair<short, short> &playerAt, const pair<short, short> &movedPlayerAt, const pair<int, int>&scores, const unsigned short depth) const{
 		RateAndScores ret = {0, scores.first, scores.second};
@@ -106,8 +106,8 @@ public:
 		return ret;
 	}
 private:
-	struct RateAndScores (*_methods[1])(const pair<short, short>&, const pair<short, short>&, const pair<int, int>&, const unsigned short) = {
-		collectObj 
+	struct RateAndScores (*_methods[2])(const pair<short, short>&, const pair<short, short>&, const pair<int, int>&, const unsigned short) = {
+		collectObj, corner2Center
 	};
 };
 
@@ -306,27 +306,27 @@ const string Bot::decide() const{
 	return _DIR_STR[maxDirIdx];
 }
 
-// struct RateAndScores Complex::corner2Center(const pair<short, short> &playerAt, const pair<short, short> &movedPlayerAt, const pair<int, int> &scores, const unsigned short depth){
-	// struct RateAndScores nearRnS = {0.1, scores.first, scores.second}, farRnS = {0, scores.first, scores.second};
-	// if(gameMap.myLocation.first < gameMap.height() * 0.2 || gameMap.myLocation.first > gameMap.height() * 0.8){
-		// if(pow(movedPlayerAt.first - gameMap.height()/2, 2) + pow(movedPlayerAt.second - gameMap.width()/2, 2) <
-				// pow(gameMap.myLocation.first - gameMap.height()/2, 2) + pow(gameMap.myLocation.second - gameMap.width()/2, 2)){
-			// return nearRnS;
-		// }else{
-			// return farRnS;
-		// }
-	// }else{
-		// if(gameMap.myLocation.second < gameMap.width() * 0.2 || gameMap.myLocation.second > gameMap.width() * 0.8){
-			// if(pow(movedPlayerAt.first - gameMap.height()/2, 2) + pow(movedPlayerAt.second - gameMap.width()/2, 2) <
-					// pow(gameMap.myLocation.first - gameMap.height()/2, 2) + pow(gameMap.myLocation.second - gameMap.width()/2, 2)){
-				// return nearRnS;
-			// }else{
-				// return farRnS;
-			// }
-		// }
-	// }
-	// return farRnS;
-// }
+struct RateAndScores Complex::corner2Center(const pair<short, short> &playerAt, const pair<short, short> &movedPlayerAt, const pair<int, int> &scores, const unsigned short depth){
+	struct RateAndScores nearRnS = {0.1, scores.first, scores.second}, farRnS = {0, scores.first, scores.second};
+	if(gameMap.myLocation.first < gameMap.height() * 0.15 || gameMap.myLocation.first > gameMap.height() * 0.85){
+		if(pow(movedPlayerAt.first - gameMap.height()/2, 2) + pow(movedPlayerAt.second - gameMap.width()/2, 2) <
+				pow(gameMap.myLocation.first - gameMap.height()/2, 2) + pow(gameMap.myLocation.second - gameMap.width()/2, 2)){
+			return nearRnS;
+		}else{
+			return farRnS;
+		}
+	}else{
+		if(gameMap.myLocation.second < gameMap.width() * 0.15 || gameMap.myLocation.second > gameMap.width() * 0.85){
+			if(pow(movedPlayerAt.first - gameMap.height()/2, 2) + pow(movedPlayerAt.second - gameMap.width()/2, 2) <
+					pow(gameMap.myLocation.first - gameMap.height()/2, 2) + pow(gameMap.myLocation.second - gameMap.width()/2, 2)){
+				return nearRnS;
+			}else{
+				return farRnS;
+			}
+		}
+	}
+	return farRnS;
+}
 
 void Bot::_computePlayerHalfDistance(){
 	queue<pair<unsigned short, pair<short, short>>> q({make_pair(0, gameMap.oppoLocation)});
