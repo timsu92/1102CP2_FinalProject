@@ -136,8 +136,8 @@ pair<int, int>SCORE;
 int main(){
 	ios::sync_with_stdio(false);
 	cin.tie(0);
-	srand(time(nullptr));
 	cin >> ROUND;
+	srand(time(nullptr) + ROUND);
 	gameMap.read();
 	cin >> SCORE.first >> SCORE.second;
 	{
