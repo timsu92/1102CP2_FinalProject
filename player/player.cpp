@@ -247,19 +247,12 @@ double Bot::dfs(const pair<short, short> &playerAt, const unsigned short depth, 
 		}
 		// 刪除這格地圖上的物件
 		gameMap[movedPlayerAt] = PATH;
-		double nextRate;
-		if(thisObj == MINE){
-			if(depth+3 < _playerHalfDistance){
-				nextRate = dfs(movedPlayerAt, depth+1, parentRnS + thisRnS);
-			}else{
-				nextRate = dfs(movedPlayerAt, depth+1, parentRnS + thisRnS) * pow(0.8, depth + 4 - _playerHalfDistance);
-			}
-		}else{
-			if(depth < _playerHalfDistance){
-				nextRate = dfs(movedPlayerAt, depth+1, parentRnS + thisRnS);
-			}else{
-				nextRate = dfs(movedPlayerAt, depth+1, parentRnS + thisRnS) * 0.8;
-			}
+		double nextRate = dfs(movedPlayerAt, depth+1, parentRnS + thisRnS);
+		// 當步伐太遠，減低他的影響力
+		if(nextRate != DBL_MAX && nextRate != -DBL_MAX && depth >= _playerHalfDistance){
+			nextRate *= 0.8;
+		}else if(nextRate != DBL_MAX && nextRate != -DBL_MAX && thisObj == MINE && depth+3 >= _playerHalfDistance){
+			nextRate *= pow(0.8, depth + 4 - _playerHalfDistance);
 		}
 		// 還原這格地圖上的物件
 		gameMap[movedPlayerAt] = thisObj;
