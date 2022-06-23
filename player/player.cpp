@@ -48,7 +48,7 @@ public:
 		for(unsigned short row=0 ; row < _height ; ++row){
 			for(unsigned short col=0 ; col < _width ; ++col){
 				cin >> inp;
-				_data[row][col] = (enum MapObjs)inp;
+				_mapData[row][col] = (enum MapObjs)inp;
 				if(inp == PLAYER_A){
 					playersAt.first = make_pair(row, col);
 				}else if(inp == PLAYER_B){
@@ -59,15 +59,15 @@ public:
 	}
 
 	array<enum MapObjs, 20>& operator[](const unsigned short row){
-		return _data[row];
+		return _mapData[row];
 	}
 
 	array<enum MapObjs, 20>& at(const unsigned short row){
-		return _data.at(row);
+		return _mapData.at(row);
 	}
 
 	inline enum MapObjs& operator[](const pair<short, short> &location){
-		return _data[location.first][location.second];
+		return _mapData[location.first][location.second];
 	}
 
 	unsigned short height(){return _height;}
@@ -75,7 +75,7 @@ public:
 	pair<pair<short, short>, pair<short, short>> playersAt;
 	pair<short, short> myLocation = make_pair(5,5), oppoLocation = make_pair(5,5); // dummy, set in main
 private:
-	array<array<enum MapObjs, 20>, 20> _data;
+	array<array<enum MapObjs, 20>, 20> _mapData;
 	unsigned short _height;
 	unsigned short _width;
 };
