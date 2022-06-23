@@ -161,7 +161,7 @@ void Bot::benchmark(){
 	double average = 0;
 	for(short i=0 ; i < 3 ; ++i){
 		auto start_clock = clock();
-		dfs(gameMap.myLocation, 0, RateAndScores{0, SCORE.first, SCORE.second}) * 0.8;
+		auto _ = dfs(gameMap.myLocation, 0, RateAndScores{0, SCORE.first, SCORE.second}) * 0.8;
 		average += (clock() - start_clock);
 	}
 	average /= 3 * CLOCKS_PER_SEC;
@@ -250,9 +250,9 @@ double Bot::dfs(const pair<short, short> &playerAt, const unsigned short depth, 
 		double nextRate = dfs(movedPlayerAt, depth+1, parentRnS + thisRnS);
 		// 當步伐太遠，減低他的影響力
 		if(nextRate != DBL_MAX && nextRate != -DBL_MAX && depth >= _playerHalfDistance){
-			nextRate *= 0.8;
+			nextRate *= 0.82;
 		}else if(nextRate != DBL_MAX && nextRate != -DBL_MAX && thisObj == MINE && depth+3 >= _playerHalfDistance){
-			nextRate *= pow(0.8, depth + 4 - _playerHalfDistance);
+			nextRate *= pow(0.82, depth + 4 - _playerHalfDistance);
 		}
 		// 還原這格地圖上的物件
 		gameMap[movedPlayerAt] = thisObj;
